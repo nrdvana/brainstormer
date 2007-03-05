@@ -1,0 +1,91 @@
+/*
+ I want to toss out a huge thank-you to Stu Nichols, author of http://cssplay.co.uk/
+ While I didn't end up using any of his examples directly, his huge variety of
+ clear-cut examples helped me decipher the mystery of hover-over css menus,
+ and uncover some of the crazy things that need to be done to get it to work
+ in a variety of browsers.
+
+ Also, I wasn't a fan of IE before, but now I thoroughly despise it ;-)
+ This is currently tested on IE6, Opera7&9, and Firefox, and there were a load of
+ nice CSS bits that I had to abandon thanks to IE's faulty rendering/alignment.
+*/
+
+html, body, div, form, pre, code, ul, ol {
+	margin:0;
+	padding:0;
+}
+html {
+	height:100%;
+}
+body {
+	height:100%;
+	background-color:black;
+	color:white;
+}
+.navbar {
+	position:fixed;
+	margin:0;
+	padding:0;
+	right:0;
+	top:0;
+	height:100%;
+	border-right:16px solid #33A;
+	z-index:100;
+}
+.lame-browser {
+	visibility:hidden; position:absolute;
+}
+
+* html body .navbar { position:absolute; }
+* html body .lame-browser {
+	visibility:visible;
+	position:relative;
+	border-bottom:1px solid white;
+	background-color:#D33;
+	color:white;
+	text-align:center;
+}
+
+.navbar ul { list-style-type:none; margin:0; padding:0; }
+.navbar ul li {
+	position:relative;
+	right:-12px;
+	margin:0.2em 0 0.2em 0;
+	padding:0;
+	border:1px solid black;
+}
+.navbar ul * {
+	color:black;
+	background-color:white;
+	text-decoration:none;
+	font-weight:700;
+	font-size:9pt;
+	font-family:"Arial",sans-serif;
+}
+.navbar ul li a {
+	display:block;
+	padding:0 0.3em 0 0.3em;
+}
+.navbar ul li a:hover {
+	background-color:#99F;
+}
+#content {
+	min-height:100%;
+	margin:0 24px 0 0;
+	padding:0;
+}
+* html body #content {
+	height:100%;
+}
+#roomForFooter {
+	height:4em;
+}
+#footer {
+	margin:-31px 0 0 0;
+	padding:0;
+}
+#footer .validate, #footer .validate * {
+	margin:0;
+	padding:0;
+	border:none;
+}

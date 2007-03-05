@@ -1,0 +1,48 @@
+.content {
+	margin-top:1em;
+}
+
+input.mainsearch {
+	width:50%;
+}
+
+table.searchresult {
+	width:100%;
+	border-spacing:0;
+	border-collapse:collapse;
+}
+
+.searchresult td, .searchresult th {
+	padding:1px 0.3em 1px 0.3em;
+}
+
+.searchresult thead {
+	background-color: blue;
+	color:white;
+	font-weight:800;
+	margin:none;
+	border:none;
+}
+
+.searchresult thead .title {
+	text-align:left;
+}
+
+.searchresult thead a:hover {
+	display:inline-block;
+	width:100%;
+	background-color: #5F5;
+	color:white;
+}
+
+.date {
+	white-space:nowrap;
+}
+
+.searchresult tbody tr {
+	background-color: gray;
+	color:white;
+	font-family:'Arial',sans-serif;
+	font-size:9pt;
+	border:1px solid black;
+}

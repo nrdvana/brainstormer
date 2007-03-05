@@ -1,0 +1,15 @@
+.content {
+	margin-top:1em;
+}
+
+.login .groupbox, .error .groupbox {
+	width:60%;
+	margin:2em 20%;
+}
+.login div {
+	text-align:center;
+}
+.login .prompts {
+	margin:1em 15%;
+	width:70%;
+}

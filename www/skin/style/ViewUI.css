@@ -1,0 +1,196 @@
+.content { margin-left:4px; }
+
+.postlist {
+	margin:0;
+	width:70%;
+	min-width:300px;
+	padding:0;
+}
+.post {
+	position:relative;
+	margin:0;
+	padding:0;
+}
+.postchildren {
+	position:relative;
+	left:3em;
+	margin:0;
+	padding:0;
+	width:100%;
+}
+.parentlist ul {
+	margin:0.5em 20% 0.5em 2em;
+}
+//.parentlist li {
+//	border:1px solid green;
+//}
+.posttitle {
+	position:relative;
+	padding:2px;
+	margin-right:2em;
+	margin-left:0;
+	border-left:1px solid #66B;
+	border-top:1px solid #66B;
+	font-size:10pt;
+	z-index:1;
+	background-color: #33A;
+	color:white;
+}
+.parentlist .posttitle {
+	border:none;
+	background-color:black;
+	color:white;
+	font-size:9pt;
+}
+.posttitle * {
+	vertical-align:middle;
+	color:white;
+	font-weight:700;
+	font-family:"Arial",sans-serif;
+}
+.posttitle .btn { margin-left:0.1em; }
+.posttitle .author { margin-left:0.5em; color:white; }
+.posttitle .title {
+	display:inline-block;
+	margin-left:0.7em;
+	white-space:nowrap;
+}
+.posttitle .date {
+	display:inline-block;
+	float:right;
+	white-space:nowrap;
+	font-family:"Courier New",monospace,sans-serif;
+	font-size:9pt;
+}
+
+.keywords {
+	position:absolute;
+	top:2px;
+	right:-4em;
+	width:6em;
+
+	text-align:right;
+	font-size:10pt;
+	font-family:"Arial",sans-serif;
+}
+.keywords dl {
+	left:auto;
+	right:0;
+}
+.keywords .caption, .keywords dd {
+	padding:0 0.2em 0 0.3em;
+	text-align:left;
+	white-space:nowrap;
+
+	background-color:black;
+	border:1px solid green;
+	border-left-width:0.4em;
+	text-transform:lowercase;
+}
+.keywords dd {
+	margin-top:0.3em;
+	font-weight:normal;
+}
+
+.lastedit { float:right; font-size:8pt; z-index:1; }
+.lastedit, .datetime { font-family:"Courier New",monospace,sans-serif; }
+.posttable, .posttable tr, .posttable tr td { margin:0; padding:0; border:none; }
+.posttable { width:100%; }
+.posttable td { vertical-align:top; }
+.avatar {
+	background-color:#33A;
+	margin:0;
+	padding:4px;
+	border-left:1px solid #66B;
+	border-right:1px solid #111;
+}
+.postbody {
+	width:100%;
+	padding:8px;
+	border-top:2px solid #111; border-left:1px solid #111;
+	color:white;
+	background-color: #444;
+	font-family:"Arial",sans-serif;
+	font-size:12pt;
+}
+.postbody ul, .postbody pre, .postbody code {
+	margin-top: 0.25em; margin-bottom: 0.25em;
+	padding-top: 0.25em; padding-bottom: 0.25em;
+}
+
+.linkbar {
+	margin:-7pt 0 0 80%;
+	height: 13pt;
+	padding:0px;
+	vertical-align:top;
+	align:right;
+	background-color:transparent;
+	z-index:3;
+}
+.linkbar span {
+	margin:1px 4px 1px 4px;
+	border:1px solid #BBB;
+	border-bottom-color:#444;
+	border-right-color:#444;
+	padding:0px;
+	background-color:#555;
+}
+.linkbar a {
+	margin:0;
+	padding:0 4px 0 4px;
+	background-color: #555;
+	color: white;
+	text-decoration: none;
+	font-family: "Arial",sans-serif;
+	font-size: 11pt;
+}
+.linkbar a:hover {
+	background-color: #AAA;
+}
+
+.topic-rel {
+	display:inline-block;
+	margin:-9pt 60% 4px 1em;
+	padding:2px;
+	font-family:"Arial",sans-serif;
+	font-size:9pt;
+
+	background-color:transparent;
+	color:white;
+}
+.topic-rel dl {
+	background-color:black;
+	border:1px solid green;
+}
+.topic-rel dd, .topic-rel .caption {
+	padding:0 0.2em 0 0.4em;
+	text-align:left;
+	white-space:nowrap;
+
+	font-size:7pt;
+}
+.topic-rel dd a {
+	color:inherit;
+	background-color:inherit;
+	text-decoration:none;
+}
+.topic-rel dd a:hover {
+	background-color:green;
+	font-size:10pt;
+	margin:-2pt 0 -1pt 0;
+	color:white;
+}
+
+/*
+.plus, .minus, .retree { display:inline-block; width:9px; height:9px; border:1px solid white; background-color:black; padding:2px; margin:2px;
+	//overflow:hidden;
+}
+.plus *, .minus *, .retree * { display:block; margin:0 auto; padding:0; overflow:hidden; }
+.plus b { width:1px; height:4px; border:0 solid black; border-left-width:4px; border-right-width:4px;  background-color:white; }
+.minus b { width:9px; height:4px; }
+.plus i, .minus i { display:block; width:9px; height:1px; background-color:white; }
+
+.retree em { height:3px; width:7px; background-color:white; margin-right:2px; }
+.retree b  { height:1px; width:8px; border-left:1px solid white; }
+.retree i  { height:1px; width:2px; border-top:1px solid white; border-right:6px solid white; border-left:1px solid white; }
+*/
