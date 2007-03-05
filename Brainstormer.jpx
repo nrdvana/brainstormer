@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--JBuilder XML Project-->
+<project>
+  <property category="debug.0" name="SmartStepRedefineClasses" value="0"/>
+  <property category="debug.0" name="SmartStepSkipStaticInitializers" value="0"/>
+  <property category="debug.0" name="SmartStepSkipSynthetics" value="0"/>
+  <property category="editor.general" name="line_ending.style" value="3"/>
+  <property category="generalFormatting" name="blockIndent" value="4"/>
+  <property category="generalFormatting" name="lineEndingStyle" value="3"/>
+  <property category="generalFormatting" name="tabSize" value="4"/>
+  <property category="generalFormatting" name="useTabChar" value="1"/>
+  <property category="generalFormatting2" name="blockIndent" value="4"/>
+  <property category="generalFormatting2" name="lineEndingStyle" value="3"/>
+  <property category="generalFormatting2" name="overrideBasicFormatting" value="1"/>
+  <property category="generalFormatting2" name="tabSize" value="4"/>
+  <property category="generalFormatting2" name="useTabChar" value="1"/>
+  <property category="javaFormatting" name="EventStyle" value="0"/>
+  <property category="javaFormatting" name="alignMultilineParenthesis" value="0"/>
+  <property category="javaFormatting" name="arrayInitDataOnNewLine" value="0"/>
+  <property category="javaFormatting" name="createBrace" value="0"/>
+  <property category="javaFormatting" name="extendsOnNewLine" value="0"/>
+  <property category="javaFormatting" name="implementsOnNewLine" value="0"/>
+  <property category="javaFormatting" name="indentCase" value="0"/>
+  <property category="javaFormatting" name="packagePrefixGroups" value="BLANK_LINE;java.awt;javax.swing;BLANK_LINE;javax;java;(*)"/>
+  <property category="javaFormatting" name="spaceBeforeLparen" value="0"/>
+  <property category="javaFormatting" name="wrapAtColumn" value="120"/>
+  <property category="javaFormatting" name="wrapBeforeOperator" value="1"/>
+  <property category="javadoc" name="custom.tags.1" value="todo;a;To Do:"/>
+  <property category="optimize.0" name="OptimizableType" value="com.borland.jbuilder.optimize.IntroOptimizeitProfiler"/>
+  <property category="runtime" name="DefaultConfiguration" value="-1"/>
+  <property category="runtime.0" name="BuildTargetOnRun" value="com.borland.jbuilder.build.ProjectBuilder$ProjectBuildAction;make"/>
+  <property category="runtime.0" name="ConfigurationName" value="Local Servlet Container"/>
+  <property category="runtime.0" name="RunnableType" value="com.borland.jbuilder.runtime.ApplicationRunner"/>
+  <property category="runtime.0" name="application.class" value="rogatkin.web.WebApp"/>
+  <property category="runtime.0" name="application.parameters" value="l:\home\silverdirk\code\Brainstormer\Brainstormer.war -p 8080"/>
+  <property category="runtime.0" name="custom.init_required" value="0"/>
+  <property category="runtime.0" name="custom.override_required" value="1"/>
+  <property category="runtime.0" name="custom.required.1" value="Servlet"/>
+  <property category="runtime.0" name="custom.required.2" value="Tiny Java Web Server"/>
+  <property category="runtime.0" name="custom.required.3" value="Mysql Connector"/>
+  <property category="serverservices" name="single.server.name" value="Tomcat 4.0"/>
+  <property category="sys" name="AuthorLabel" value="@author"/>
+  <property category="sys" name="BackupPath" value="bak"/>
+  <property category="sys" name="CheckStable" value="1"/>
+  <property category="sys" name="Company" value="Copyright (c) 2007"/>
+  <property category="sys" name="CompanyLabel" value="Copyright"/>
+  <property category="sys" name="Copyright" value=""/>
+  <property category="sys" name="CopyrightLabel" value="Description:"/>
+  <property category="sys" name="DefaultPath" value="src"/>
+  <property category="sys" name="Description" value=""/>
+  <property category="sys" name="DescriptionLabel" value="Title:"/>
+  <property category="sys" name="DocPath" value="doc"/>
+  <property category="sys" name="Encoding" value="UTF8"/>
+  <property category="sys" name="ExcludeClassEnabled" value="0"/>
+  <property category="sys" name="IncludeTestPath" value="1"/>
+  <property category="sys" name="InstanceVisibility" value="2"/>
+  <property category="sys" name="JDK" value="java version 1.6.0-b105"/>
+  <property category="sys" name="JvmVersion" value="1.5"/>
+  <property category="sys" name="LastTag" value="0"/>
+  <property category="sys" name="Libraries" value="Servlet;Tiny Java Web Server;Mysql Connector"/>
+  <property category="sys" name="MakeStable" value="0"/>
+  <property category="sys" name="OutPath" value="classes"/>
+  <property category="sys" name="SourcePath" value="src"/>
+  <property category="sys" name="SourceVersion" value="1.5"/>
+  <property category="sys" name="TestPath" value="src"/>
+  <property category="sys" name="Title" value="Brainstormer"/>
+  <property category="sys" name="TitleLabel" value="Project:"/>
+  <property category="sys" name="Version" value="$Revision$"/>
+  <property category="sys" name="VersionLabel" value="@version"/>
+  <property category="sys" name="WorkingDirectory" value="."/>
+  <node name="ClassesJar" type="Archive">
+    <property category="archiving" name="contentRules.1" value="I:brainstormer/*.*"/>
+    <property category="archiving" name="targetPath" value="Brainstormer.jar"/>
+    <property category="archiving" name="usingRules" value="1"/>
+  </node>
+  <node name="WAR" type="Archive">
+    <property category="archiving" name="contentRules.1" value="F:www/WEB-INF/web.xml;WEB-INF/web.xml"/>
+    <property category="archiving" name="contentRules.10" value="F:www/skin/style/Widgets.css;skin/style/Widgets.css"/>
+    <property category="archiving" name="contentRules.11" value="F:www/skin/style/SearchUI.css;skin/style/SearchUI.css"/>
+    <property category="archiving" name="contentRules.12" value="F:www/skin/img/JumpTo.gif;skin/img/JumpTo.gif"/>
+    <property category="archiving" name="contentRules.13" value="F:www/skin/style/LoginUI.css;skin/style/LoginUI.css"/>
+    <property category="archiving" name="contentRules.2" value="F:www/skin/style/Page.css;skin/style/Page.css"/>
+    <property category="archiving" name="contentRules.3" value="F:www/skin/style/ViewUI.css;skin/style/ViewUI.css"/>
+    <property category="archiving" name="contentRules.4" value="F:www/skin/style/EditUI.css;skin/style/EditUI.css"/>
+    <property category="archiving" name="contentRules.5" value="F:www/scripts/ExpandCollapse.js;scripts/ExpandCollapse.js"/>
+    <property category="archiving" name="contentRules.6" value="F:Brainstormer.jar;WEB-INF/lib/brainstormer.jar"/>
+    <property category="archiving" name="contentRules.7" value="F:www/skin/img/Plus.gif;skin/img/Plus.gif"/>
+    <property category="archiving" name="contentRules.8" value="F:www/skin/img/Retree.gif;skin/img/Retree.gif"/>
+    <property category="archiving" name="contentRules.9" value="F:www/skin/img/Minus.gif;skin/img/Minus.gif"/>
+    <property category="archiving" name="includeManifest" value="0"/>
+    <property category="archiving" name="targetPath" value="Brainstormer.war"/>
+    <property category="archiving" name="usingRules" value="1"/>
+  </node>
+  <file path="www/skin/style/EditUI.css"/>
+  <file path="www/scripts/ExpandCollapse.js"/>
+  <file path="www/skin/style/LoginUI.css"/>
+  <file path="www/skin/style/Page.css"/>
+  <file path="www/skin/style/SearchUI.css"/>
+  <file path="www/skin/style/ViewUI.css"/>
+  <file path="www/WEB-INF/web.xml"/>
+  <file path="www/skin/style/Widgets.css"/>
+</project>
