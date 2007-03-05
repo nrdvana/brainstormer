@@ -1,0 +1,87 @@
+package brainstormer;
+
+import javax.servlet.http.*;
+import java.io.IOException;
+import java.sql.*;
+import java.io.PrintWriter;
+
+/**
+ * <p>Project: Brainstormer</p>
+ * <p>Title: </p>
+ * <p>Description: </p>
+ * <p>Copyright Copyright (c) 2007</p>
+ *
+ * @author Michael Conrad
+ * @version $Revision$
+ */
+public class RADServlet extends HttpServlet {
+	static class ServletContextLogger extends PrintWriter {
+		javax.servlet.ServletContext cx;
+		ServletContextLogger(javax.servlet.ServletContext cx) {
+			super(System.out);
+			this.cx= cx;
+		}
+		public void print(String s) {
+			cx.log(s);
+		}
+	}
+
+	public RADServlet() {
+	}
+
+	public void init() {
+		DriverManager.setLogWriter(new ServletContextLogger(getServletContext()));
+	}
+
+	protected void fail(String msg) {
+		throw new UserException(msg);
+	}
+
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		HtmlGL hgl= new HtmlGL(req, resp);
+		DB db= null;
+		try {
+			db= DB.getInstance(getServletContext());
+			db.activeUser= db.auth.authenticateCurrentUser(req);
+			doGet(req, resp, db, hgl);
+		}
+		catch (Exception ex) {
+			hgl.pException(ex);
+		}
+		if (db != null)
+			DB.recycleInstance(db);
+	}
+
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp, DB db, HtmlGL hgl) throws Exception {
+		super.doGet(req, resp);
+	}
+
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		HtmlGL hgl= new HtmlGL(req, resp);
+		DB db= null;
+		try {
+			db= DB.getInstance(getServletContext());
+			db.activeUser= db.auth.authenticateCurrentUser(req);
+			doPost(req, resp, db, hgl);
+		}
+		catch (SQLException ex) {
+			hgl.pException(ex);
+			if (db != null) {
+				try {
+					db.disconnect();
+				}
+				catch (Exception e) {}
+				db= null;
+			}
+		}
+		catch (Exception ex) {
+			hgl.pException(ex);
+		}
+		if (db != null)
+			DB.recycleInstance(db);
+	}
+
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp, DB db, HtmlGL hgl) throws Exception {
+		super.doPost(req, resp);
+	}
+}
