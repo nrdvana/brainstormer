@@ -94,6 +94,8 @@ public class PostEditPage extends RADServlet {
 
 	public void doGet(HttpServletRequest req, HttpServletResponse response, DB db, HtmlGL hgl) throws Exception {
 		PageFields fields= null;
+		if (db.activeUser == null)
+			response.sendRedirect(response.encodeRedirectURL("login?goto="+hgl.urlEsc(req.getRequestURI()+"?"+Util.trimPossibleNull(req.getQueryString()))));
 		String replyIdStr= req.getParameter("reply");
 		String editIdStr= req.getParameter("id");
 		if (editIdStr != null) {

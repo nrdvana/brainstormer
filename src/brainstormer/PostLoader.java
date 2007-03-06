@@ -135,6 +135,10 @@ public class PostLoader {
 
 	public void store(Post p) throws SQLException {
 		boolean insert= (p.id == -1);
+		if (insert && db.activeUser == null)
+			throw new UserException("You must be logged in before you can create posts");
+		if (!insert && db.activeUser != p.author)
+			throw new UserException("You can only edit posts that you created");
 		PreparedStatement stmt= insert? s_InsertPost : s_UpdatePost;
 		stmt.setString(1, p.title);
 		stmt.setString(2, p.content.getDBContentType());
