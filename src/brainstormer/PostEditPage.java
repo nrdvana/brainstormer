@@ -23,6 +23,7 @@ public class PostEditPage extends RADServlet {
 		String Title= "";
 		String[] Keywords= new String[0];
 		String Text= "";
+		String TextType= "plain";
 		Set<Integer> ReplyToSet= new HashSet<Integer>();
 		String ReplyToQuery= "";
 		Set<Integer> TopicSet= new HashSet<Integer>();
@@ -43,6 +44,9 @@ public class PostEditPage extends RADServlet {
 			PostID= Util.parseOrDefault(req.getParameter("PostID"), -1);
 			Title= Util.trimPossibleNull(req.getParameter("Title"));
 			Keywords= removeEmpty(req.getParameterValues("Keywords"));
+			TextType= Util.trimPossibleNull(req.getParameter("TextType"));
+			if (!TextType.equals("plain") && !TextType.equals("bbbcode"))
+				TextType= "plain";
 			Text= Util.trimPossibleNull(req.getParameter("Text"));
 			addStrArrayToSetOfInt(req.getParameterValues("ReplyToSet"), ReplyToSet);
 			ReplyToQuery= Util.trimPossibleNull(req.getParameter("ReplyToQuery"));
@@ -118,7 +122,7 @@ public class PostEditPage extends RADServlet {
 		PageFields fields= new PageFields(req);
 		switch (fields.userEvent) {
 		case Post:
-			Post p= postObjFromFields(fields, db.activeUser);
+			Post p= postObjFromFields(fields, db);
 			db.postLoader.store(p);
 			response.sendRedirect(response.encodeRedirectURL("view?id="+p.id));
 			break;
@@ -153,10 +157,10 @@ public class PostEditPage extends RADServlet {
 		result.postTime= result.editTime= new java.sql.Timestamp(System.currentTimeMillis());
 		switch (fields.ActiveTab) {
 		case 0:
-			result.content= new PostTextContent(fields.Text);
+			result.setContent(fields.TextType, fields.Text);
 			break;
 		default:
-			result.content= new NoContent();
+			result.setContent("plain", "");
 		}
 		for (Integer peer: fields.ReplyToSet)
 			result.addLink(new Link(result.id, peer, "reply"));
@@ -197,6 +201,7 @@ public class PostEditPage extends RADServlet {
 		hgl.beginTabControl("TabChange", tabNames, fields.ActiveTab);
 		switch (fields.ActiveTab) {
 		case 0:
+			hgl.p("Markup type: ").pDropdown("TextType", new String[] {"plain","bbbcode"}, new String[] {"Plain Text", "BBB Code"}, fields.TextType);
 			hgl.p("<div class='text-edit'>\n"
 				+"<textarea name='Text' rows='20' cols='80'>").pText(fields.Text).p("</textarea>\n"
 				+"</div>\n");
@@ -212,8 +217,10 @@ public class PostEditPage extends RADServlet {
 				+"</div>\n");
 			break;
 		}
-		if (fields.ActiveTab != 0)
+		if (fields.ActiveTab != 0) {
+			hgl.p("<input type='hidden' name='TextType' value='").pText(fields.TextType).p("'/>\n");
 			hgl.p("<input type='hidden' name='Text' value='").pText(fields.Text).p("'/>\n");
+		}
 		hgl.endTabControl();
 
 		hgl.p("<div class='container'><div class='post-buttons'><div>\n"

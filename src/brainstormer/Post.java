@@ -43,6 +43,18 @@ public class Post {
 		}
 		set.add(l);
 	}
+
+	void setContent(String contentType, String Text) {
+		if (contentType.equals("plain"))
+			content= new PostTextContent(Text);
+		else if (contentType.equals("bbbcode"))
+			content= new PostBBBCodeContent(Text);
+		else if (contentType.equals("wiki"))
+			content= new PostBBBCodeContent(Text);
+		else
+			throw new RuntimeException("Unsupported content type: "+contentType);
+	}
+
 	void wipeLinks() {
 		inEdges.clear();
 		outEdges.clear();

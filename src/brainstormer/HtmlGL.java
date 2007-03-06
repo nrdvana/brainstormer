@@ -347,6 +347,16 @@ public class HtmlGL {
 		p("</div>\n");
 	}
 
+	public void pDropdown(String name, String[] values, String[] display, String selected) {
+		p("<select name='").p(name).p("'>");
+		for (int i=0; i<values.length; i++) {
+			p("<option value='").p(values[i]);
+			p(values[i].equals(selected)? "' selected='selected'>":"'>");
+			pText(display[i]).p("</option>");
+		}
+		p("</select>");
+	}
+
 	public HtmlGL pContentExpandButton(String name) {
 		return beginContentSelectorButton(name, 1, false).p("<img src='").pURL("skin/img/Plus.gif").p("' alt='expand'/></a>");
 	}
