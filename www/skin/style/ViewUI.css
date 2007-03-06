@@ -113,6 +113,9 @@
 	font-family:"Arial",sans-serif;
 	font-size:12pt;
 }
+.postbody .bbbcode {
+//	white-space:pre;
+}
 .postbody ul, .postbody pre, .postbody code {
 	margin-top: 0.25em; margin-bottom: 0.25em;
 	padding-top: 0.25em; padding-bottom: 0.25em;

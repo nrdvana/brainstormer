@@ -121,9 +121,9 @@ public class PostViewPage extends RADServlet {
 				+"  <td width='96'><div class='avatar'>\n"
 				+"    <img width='96' height='96' alt=\"user's avatar\" src='").pText(node.author.avatar).p("'/>"
 				+"  </td><td>\n");
-		hgl.p("<div class='postbody'>\n");
+		hgl.p("<div class='postbody'><div class='").p(node.content.getDBContentType()).p("'>\n");
 		node.content.render(hgl);
-		hgl.p("\n</div>\n");
+		hgl.p("\n</div></div>\n");
 		writeActionBar(hgl, node);
 		writeTopicRelations(hgl, node, db, renderedSet);
 		if (node.author.avatar != null)
