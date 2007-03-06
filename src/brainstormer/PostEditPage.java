@@ -148,13 +148,15 @@ public class PostEditPage extends RADServlet {
 		return 0;
 	}
 
-	static Post postObjFromFields(PageFields fields, User currentUser) {
-		Post result= new Post();
-		result.id= fields.PostID;
+	static Post postObjFromFields(PageFields fields, DB db) throws SQLException {
+		Post result= (fields.PostID == -1)? new Post() : db.postLoader.loadById(fields.PostID);
 		result.title= fields.Title;
 		result.keywords= fields.Keywords;
-		result.author= currentUser;
-		result.postTime= result.editTime= new java.sql.Timestamp(System.currentTimeMillis());
+		result.editTime= new java.sql.Timestamp(System.currentTimeMillis());
+		if (fields.PostID == -1) {
+			result.author= db.activeUser;
+			result.postTime=  result.editTime;
+		}
 		switch (fields.ActiveTab) {
 		case 0:
 			result.setContent(fields.TextType, fields.Text);
@@ -180,7 +182,7 @@ public class PostEditPage extends RADServlet {
 
 		if (fields.doPreview) {
 			hgl.beginGroupBox("Preview");
-			Post post= postObjFromFields(fields, db.activeUser);
+			Post post= postObjFromFields(fields, db);
 			hgl.p("<div class='post'>\n");
 			PostViewPage.renderPostHeader(hgl, post, "", 0);
 			PostViewPage.renderPostBody(hgl, post, "", db, Collections.EMPTY_SET);

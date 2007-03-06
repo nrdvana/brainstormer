@@ -98,7 +98,7 @@ public class Schema {
 					"Title varchar(96)",
 					"PostTime timestamp not null default CURRENT_TIMESTAMP",
 					"EditTime timestamp not null",
-					"ContentType char(8)",
+					"ContentType char(8) not null default 'plain'",
 					"Text text",
 				},
 				new String[] {

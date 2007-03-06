@@ -47,7 +47,7 @@ public class PostLoader {
 			+"LEFT JOIN Link l_out ON l_out.Node = p.ID "
 			+"WHERE l_in.Node IS NULL AND l_out.Node IS NULL");
 		s_InsertPost= db.prep("INSERT INTO Post (Title, ContentType, Text, AuthorID, PostTime, EditTime) VALUES (?, ?, ?, ?, NOW(), NOW())");
-		s_UpdatePost= db.prep("UPDATE Post SET Title = ?, ContentType = ?, Text = ?, EditTime = NOW() WHERE ID = ?");
+		s_UpdatePost= db.prep("UPDATE Post SET Title = ?, ContentType = ?, Text = ?, EditTime = NOW() WHERE AuthorID = ? AND ID = ?");
 		s_WipeKeywords= db.prep("DELETE FROM Keyword WHERE PostID = ?");
 		s_InsertKeyword= db.prep("INSERT INTO Keyword (PostID, Keyword) VALUES (?, ?)");
 		s_WipeLinks= db.prep("DELETE FROM Link WHERE Node = ?");
@@ -143,8 +143,13 @@ public class PostLoader {
 		stmt.setString(1, p.title);
 		stmt.setString(2, p.content.getDBContentType());
 		stmt.setString(3, p.content.getText());
-		stmt.setInt(4, insert? p.author.id : p.id);
-		stmt.execute();
+		stmt.setInt(4, p.author.id);
+		if (!insert)
+			stmt.setInt(5, p.id);
+		int changed= stmt.executeUpdate();
+		if (changed != 1)
+			// probably a result of the wrong AuthorID being assigned to the post
+			throw new UserException("Failed to "+(insert?"insert":"update")+" post");
 		if (insert) {
 			ResultSet rs= stmt.getGeneratedKeys();
 			rs.next();
@@ -167,14 +172,7 @@ public class PostLoader {
 			ret.postTime= rs.getTimestamp(4);
 			ret.editTime= rs.getTimestamp(5);
 			String contentType= rs.getString(6);
-			if (contentType.equals("plain"))
-				ret.content= new PostTextContent(rs.getString(7));
-			else if (contentType.equals("wiki"))
-				ret.content= new PostWikiContent(rs.getString(7));
-//		else if (contentType.equals("img"))
-//			ret.content= new
-			else
-				ret.content= NoContent.INSTANCE;
+			ret.setContent(contentType, rs.getString(7));
 		}
 		return ret;
 	}
