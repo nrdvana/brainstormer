@@ -51,7 +51,7 @@ public class LoginPage extends RADServlet {
 			else
 				renderMissingCookieError(hgl);
 		}
-		else if (req.getServerName().equals("/logout")) {
+		else if (req.getServletPath().equals("/logout")) {
 			response.addCookie(Auth.getLogoutCookie());
 			response.sendRedirect(response.encodeRedirectURL(fields.destination));
 		}
