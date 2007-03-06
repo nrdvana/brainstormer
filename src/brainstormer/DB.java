@@ -116,16 +116,10 @@ public class DB {
 		// this is thread-safe because there is no harm in running it multiple times
 		if (driverFound) return;
 		try {
-			Class.forName("com.mysql.jdbc.Driver").newInstance();
+			Class.forName("com.mysql.jdbc.Driver");
 		}
 		catch (ClassNotFoundException ex) {
 			throw new DBInitException("MySQL driver class not found", ex);
-		}
-		catch (InstantiationException ex) {
-			throw new DBInitException("Cannot instantiate MySQL driver", ex);
-		}
-		catch (IllegalAccessException ex) {
-			throw new DBInitException("Cannot access MySQL driver", ex);
 		}
 		driverFound= true;
 	}
