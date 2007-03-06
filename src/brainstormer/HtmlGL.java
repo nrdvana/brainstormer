@@ -63,15 +63,16 @@ public class HtmlGL {
 				}
 				p("\n");
 			}
-			for (Cookie c: request.getCookies()) {
-				p("Cookie:\n");
-				for (java.lang.reflect.Method func: c.getClass().getMethods()) {
-					if (func.getName().startsWith("get") && func.getParameterTypes().length == 0) {
-						Object val= func.invoke(c, new Object[0]);
-						pText("   "+func.getName()+" = "+val).p("\n");
+			if (request.getCookies() != null)
+				for (Cookie c: request.getCookies()) {
+					p("Cookie:\n");
+					for (java.lang.reflect.Method func: c.getClass().getMethods()) {
+						if (func.getName().startsWith("get") && func.getParameterTypes().length == 0) {
+							Object val= func.invoke(c, new Object[0]);
+							pText("   "+func.getName()+" = "+val).p("\n");
+						}
 					}
 				}
-			}
 		}
 		catch (Exception miscelaneousReflectionBullshitException) {
 			throw new RuntimeException(miscelaneousReflectionBullshitException);

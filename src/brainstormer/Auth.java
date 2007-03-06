@@ -83,9 +83,11 @@ public class Auth {
 	}
 
 	static final Cookie getAuthCookie(HttpServletRequest req) {
-		for (Cookie c: req.getCookies())
-			if ("UserID".equals(c.getName()))
-				return c;
+		Cookie[] cList= req.getCookies();
+		if (cList != null)
+			for (Cookie c: cList)
+				if ("UserID".equals(c.getName()))
+					return c;
 		return null;
 	}
 
