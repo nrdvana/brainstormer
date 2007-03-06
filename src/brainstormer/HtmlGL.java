@@ -104,6 +104,15 @@ public class HtmlGL {
 		return this;
 	}
 
+	public final HtmlGL pTextMultiline(String unescapedText) {
+		int pos= 0, nextPos;
+		while ((nextPos= unescapedText.indexOf('\n', pos)) != -1) {
+			pText(unescapedText.substring(pos, nextPos)).p("<br/>");
+			pos= nextPos+1;
+		}
+		return pText(unescapedText.substring(pos));
+	}
+
 	public final HtmlGL pURL(String pathFromRoot) {
 		if (pathToServletRoot != null)
 			out.print(pathToServletRoot);

@@ -111,12 +111,7 @@ class PostTextContent implements PostContent {
 		return text;
 	}
 	public void render(HtmlGL hgl) {
-		int pos= 0, nextPos;
-		while ((nextPos= text.indexOf('\n', pos)) != -1) {
-			hgl.pText(text.substring(pos, nextPos)).p("<br/>");
-			pos= nextPos+1;
-		}
-		hgl.pText(text.substring(pos));
+		hgl.pTextMultiline(text);
 	}
 }
 
@@ -148,7 +143,7 @@ class PostBBBCodeContent implements PostContent {
 		return text;
 	}
 	public void render(HtmlGL hgl) {
-		hgl.pText(text);
+		BastardizedBulletinBoardCode.render(text, hgl);
 	}
 }
 
