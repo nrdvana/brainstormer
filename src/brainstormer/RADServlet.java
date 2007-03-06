@@ -37,32 +37,28 @@ public class RADServlet extends HttpServlet {
 		throw new UserException(msg);
 	}
 
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		HtmlGL hgl= new HtmlGL(req, resp);
-		DB db= null;
-		try {
-			db= DB.getInstance(getServletContext());
-			db.activeUser= db.auth.authenticateCurrentUser(req);
-			doGet(req, resp, db, hgl);
-		}
-		catch (Exception ex) {
-			hgl.pException(ex);
-		}
-		if (db != null)
-			DB.recycleInstance(db);
+	enum HttpAction {
+		Get, Post;
 	}
 
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp, DB db, HtmlGL hgl) throws Exception {
-		super.doGet(req, resp);
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		handleWithExtendedParams(HttpAction.Get, req, resp);
 	}
 
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		handleWithExtendedParams(HttpAction.Post, req, resp);
+	}
+
+	protected void handleWithExtendedParams(HttpAction acn, HttpServletRequest req, HttpServletResponse resp) {
 		HtmlGL hgl= new HtmlGL(req, resp);
 		DB db= null;
 		try {
 			db= DB.getInstance(getServletContext());
 			db.activeUser= db.auth.authenticateCurrentUser(req);
-			doPost(req, resp, db, hgl);
+			switch (acn) {
+			case Get:  doGet(req, resp, db, hgl);  break;
+			case Post: doPost(req, resp, db, hgl); break;
+			}
 		}
 		catch (SQLException ex) {
 			hgl.pException(ex);
@@ -79,6 +75,10 @@ public class RADServlet extends HttpServlet {
 		}
 		if (db != null)
 			DB.recycleInstance(db);
+	}
+
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp, DB db, HtmlGL hgl) throws Exception {
+		super.doGet(req, resp);
 	}
 
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp, DB db, HtmlGL hgl) throws Exception {
