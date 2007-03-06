@@ -82,7 +82,7 @@ public class HtmlGL {
 
 	void beginPageIfNeeded() {
 		if (!htmlTagOpen)
-			beginPage("Error", new String[0]);
+			beginPage("Error", new String[] {"Page.css"});
 	}
 	void endPageIfNeeded() {
 		if (htmlTagOpen)
