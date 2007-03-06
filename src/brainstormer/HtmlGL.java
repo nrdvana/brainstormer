@@ -179,12 +179,12 @@ public class HtmlGL {
 		p("<div class='navbar'>\n"
 			+"  <ul>\n"
 			+"    <li><a href='").pURL("index.html").p("'>Home</a></li>\n"
-			+"    <li><a href='search'>Search</a></li>\n");
+			+"    <li><a href='").pURL("search").p("'>Search</a></li>\n");
 		if (u != null)
-			p("    <li><a href='create'>New Post</a></li>\n"
-				+"    <li><a href='login.php?action=logout'>Log Out</a></li>\n");
+			p("    <li><a href='").pURL("create").p("'>New Post</a></li>\n"
+				+"    <li><a href='").pURL("logout").p("'>Log Out</a></li>\n");
 		else
-			p("    <li><a href='login'>Log In</a></li>\n");
+			p("    <li><a href='").pURL("login").p("'>Log In</a></li>\n");
 		p("  </ul>\n"
 			+"</div>\n");
 	}
