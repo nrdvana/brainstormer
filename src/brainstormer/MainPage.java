@@ -13,10 +13,7 @@ import javax.servlet.http.HttpServletResponse;
  * @version $Revision$
  */
 public class MainPage extends RADServlet {
-	public MainPage() {
-	}
-
-	static final String[] styles= new String[] { "Page.css" };
+	static final String[] styles= new String[] { "Page.css", "ViewUI.css" };
 
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp, DB db, HtmlGL hgl) throws Exception {
 		if (req.getPathInfo() != null)
@@ -24,7 +21,10 @@ public class MainPage extends RADServlet {
 		else {
 			hgl.beginPage("Brainstormer", styles);
 			hgl.pNavBar(db.activeUser);
-			hgl.p("<h3>Brainstormer</h3>\n");
+			hgl.p("<div class='main'>");
+			Post root= db.postLoader.loadById(0);
+			root.content.render(hgl);
+			hgl.p("</div>");
 			hgl.endPage();
 		}
 	}
