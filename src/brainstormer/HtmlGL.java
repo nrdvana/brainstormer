@@ -264,8 +264,8 @@ public class HtmlGL {
 		}
 		else if (ex instanceof DBInitException) {
 			p("<h3>Misconfigured Database</h3>\n"
-				+"If you are an administrator, head to the "
-				+"<a href=\"admin\">admin</a> page to correct this problem");
+				+"If you are a server administrator, head to the "
+				+"<a href='").pURL("setup").p("'>setup</a> page to correct this problem");
 		}
 		else {
 			p("Internal error:\n<pre>");

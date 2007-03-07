@@ -100,6 +100,26 @@ public class UserLoader {
 				loadUserGroups(g);
 	}
 
+	User newUser(String uname, String pass) throws SQLException {
+		User u= new User();
+		u.name= uname;
+		u.isGroup= false;
+		u.passHash= Auth.hashPassword(uname, pass);
+		u.avatar= null;
+		storeUser(u);
+		return u;
+	}
+
+	User newGroup(String uname) throws SQLException {
+		User u= new User();
+		u.name= uname;
+		u.isGroup= true;
+		u.passHash= "-";
+		u.avatar= null;
+		storeUser(u);
+		return u;
+	}
+
 	void storeUser(User u) throws SQLException {
 		boolean update= (u.id != -1);
 		PreparedStatement stmt= update? s_UpdateUser : s_InsertUser;

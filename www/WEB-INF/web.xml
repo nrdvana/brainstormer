@@ -24,6 +24,10 @@
 		<servlet-class>brainstormer.MainPage</servlet-class>
 	</servlet>
 	<servlet>
+		<servlet-name>Setup</servlet-name>
+		<servlet-class>brainstormer.SetupPage</servlet-class>
+	</servlet>
+	<servlet>
 		<servlet-name>View</servlet-name>
 		<servlet-class>brainstormer.PostViewPage</servlet-class>
 	</servlet>
@@ -47,6 +51,10 @@
 		<servlet-name>Login</servlet-name>
 		<servlet-class>brainstormer.LoginPage</servlet-class>
 	</servlet>
+	<servlet-mapping>
+		<servlet-name>Setup</servlet-name>
+		<url-pattern>/setup</url-pattern>
+	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>View</servlet-name>
 		<url-pattern>/view</url-pattern>

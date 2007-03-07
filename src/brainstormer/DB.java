@@ -83,6 +83,7 @@ public class DB {
 
 	public void connect(String dbURI, String userName, String userPass) throws SQLException {
 		conn= DriverManager.getConnection("jdbc:"+dbURI, userName, userPass);
+		foundSchemaVersion= loadSchemaVersion();
 	}
 
 	public void disconnect() throws SQLException {
@@ -94,7 +95,6 @@ public class DB {
 	}
 
 	public void init() throws SQLException {
-		foundSchemaVersion= loadSchemaVersion();
 		postLoader= new PostLoader(this);
 		userLoader= new UserLoader(this);
 		auth= new Auth(this);
@@ -142,7 +142,7 @@ public class DB {
 		}
 		catch (SQLException ex) {
 			// no schema.. call it version 0
-			return 0;
+			return -1;
 		}
 	}
 
@@ -150,21 +150,20 @@ public class DB {
 		return conn.prepareStatement(sql);
 	}
 
-	void createTable(Schema.Table t) throws SQLException {
-		StringBuffer query= new StringBuffer("CREATE TABLE ").append(t.name).append(" ( ");
-		for (int i=0; i<t.columns.length; i++)
-			query.append(t.columns[i]).append(", ");
-		for (int i=0; i<t.keys.length; i++)
-			query.append(t.keys[i]).append(", ");
-		query.delete(query.length()-2, query.length());
-		query.append(")");
-		conn.createStatement().execute(query.toString());
-	}
+//	void createTable(Schema.Table t) throws SQLException {
+//		StringBuffer query= new StringBuffer("CREATE TABLE ").append(t.name).append(" ( ");
+//		for (int i=0; i<t.columns.length; i++)
+//			query.append(t.columns[i]).append(", ");
+//		for (int i=0; i<t.keys.length; i++)
+//			query.append(t.keys[i]).append(", ");
+//		query.delete(query.length()-2, query.length());
+//		query.append(")");
+//		conn.createStatement().execute(query.toString());
+//	}
 
 	void storeSchemaVersion(int version) throws SQLException {
 		Statement stmt= conn.createStatement();
-		stmt.execute("DELETE FROM SchemaVersion");
-		stmt.executeUpdate("INSERT INTO SchemaVersion VALUES ("+version+")");
+		stmt.execute("UPDATE SchemaVersion SET Version = "+version);
 		stmt.close();
 	}
 }
