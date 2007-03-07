@@ -47,7 +47,7 @@ public class PostLoader {
 			+"LEFT JOIN Link l_out ON l_out.Node = p.ID "
 			+"WHERE l_in.Node IS NULL AND l_out.Node IS NULL");
 		s_InsertPost= db.prep("INSERT INTO Post (Title, ContentType, Text, AuthorID, PostTime, EditTime) VALUES (?, ?, ?, ?, NOW(), NOW())");
-		s_UpdatePost= db.prep("UPDATE Post SET Title = ?, ContentType = ?, Text = ?, EditTime = NOW() WHERE AuthorID = ? AND ID = ?");
+		s_UpdatePost= db.prep("UPDATE Post SET Title = ?, ContentType = ?, Text = ?, EditTime = NOW() WHERE ID = ?");
 		s_WipeKeywords= db.prep("DELETE FROM Keyword WHERE PostID = ?");
 		s_InsertKeyword= db.prep("INSERT INTO Keyword (PostID, Keyword) VALUES (?, ?)");
 		s_WipeLinks= db.prep("DELETE FROM Link WHERE Node = ?");
@@ -137,18 +137,15 @@ public class PostLoader {
 		boolean insert= (p.id == -1);
 		if (insert && db.activeUser == null)
 			throw new UserException("You must be logged in before you can create posts");
-		if (!insert && db.activeUser != p.author)
+		if (!insert && !db.activeUser.isMemberOf(p.author))
 			throw new UserException("You can only edit posts that you created");
 		PreparedStatement stmt= insert? s_InsertPost : s_UpdatePost;
 		stmt.setString(1, p.title);
 		stmt.setString(2, p.content.getDBContentType());
 		stmt.setString(3, p.content.getText());
-		stmt.setInt(4, p.author.id);
-		if (!insert)
-			stmt.setInt(5, p.id);
+		stmt.setInt(4, insert? p.author.id : p.id);
 		int changed= stmt.executeUpdate();
 		if (changed != 1)
-			// probably a result of the wrong AuthorID being assigned to the post
 			throw new UserException("Failed to "+(insert?"insert":"update")+" post");
 		if (insert) {
 			ResultSet rs= stmt.getGeneratedKeys();
