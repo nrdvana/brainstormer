@@ -17,17 +17,17 @@ public class BastardizedBulletinBoardCode {
 		IMG, URL, URL_END(URL),
 		TABLE, COL, ROW, TABLE_END(TABLE), LIST, NEXT, LIST_END(LIST);
 
-		public Tag startOf;
-		public final Tag endOf;
 		public final String html;
+		private Tag complement= null;
+		public boolean isStart= false;;
 		private Tag() {
-			endOf= null;
 			html= "<"+name().toLowerCase()+">";
 		}
-		private Tag(Tag endOf) {
-			this.endOf= endOf;
-			this.endOf.startOf= this;
-			html= "</"+endOf.name().toLowerCase()+">";
+		private Tag(Tag startTag) {
+			complement= startTag;
+			complement.complement= this;
+			complement.isStart= true;
+			html= "</"+startTag.name().toLowerCase()+">";
 		}
 
 		static final int MAX_TAG_STRING_LEN= 6;
@@ -35,6 +35,10 @@ public class BastardizedBulletinBoardCode {
 		static {
 			for (Tag t: Tag.values())
 				map.put(t.html.substring(1, t.html.length()-1), t);
+		}
+
+		public Tag getComplement() {
+			return complement;
 		}
 	}
 
@@ -110,10 +114,10 @@ public class BastardizedBulletinBoardCode {
 			Tag t= Tag.map.get(fragment.substring(0, tagEnd).toLowerCase());
 			if (t == null)
 				return "["+fragment;
-			if (t.startOf != null)
+			if (t.isStart)
 				tagStack.add(t);
-			else if (t.endOf != null) {
-				if (tagStack.size() == 0 || t.endOf != tagStack.getLast())
+			else if (t.complement != null) {
+				if (tagStack.size() == 0 || t.complement != tagStack.getLast())
 					return "["+fragment;
 				tagStack.removeLast();
 			}
@@ -178,6 +182,11 @@ public class BastardizedBulletinBoardCode {
 			}
 			else
 				hgl.pTextMultiline((String)elem);
+		}
+		// now, clean up the html by emitting any missing end tags
+		while (tok.tagStack.size() > 0) {
+			Tag t= tok.tagStack.removeLast();
+			hgl.p(t.getComplement().html);
 		}
 	}
 }
