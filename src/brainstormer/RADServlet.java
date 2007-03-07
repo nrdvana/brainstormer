@@ -52,29 +52,38 @@ public class RADServlet extends HttpServlet {
 	protected void handleWithExtendedParams(HttpAction acn, HttpServletRequest req, HttpServletResponse resp) {
 		HtmlGL hgl= new HtmlGL(req, resp);
 		DB db= null;
-		try {
-			db= DB.getInstance(getServletContext());
-			db.activeUser= db.auth.authenticateCurrentUser(req);
-			switch (acn) {
-			case Get:  doGet(req, resp, db, hgl);  break;
-			case Post: doPost(req, resp, db, hgl); break;
-			}
-		}
-		catch (SQLException ex) {
-			hgl.pException(ex);
-			if (db != null) {
-				try {
-					db.disconnect();
+		do {
+			try {
+				db= DB.getInstance(getServletContext());
+				db.activeUser= db.auth.authenticateCurrentUser(req);
+				switch (acn) {
+				case Get:  doGet(req, resp, db, hgl);  break;
+				case Post: doPost(req, resp, db, hgl); break;
 				}
-				catch (Exception e) {}
-				db= null;
 			}
-		}
-		catch (Exception ex) {
-			hgl.pException(ex);
-		}
-		if (db != null)
-			DB.recycleInstance(db);
+			catch (SQLException ex) {
+				if (ex instanceof com.mysql.jdbc.CommunicationsException
+					&& ex.getCause() != null
+					&& ex.getCause() instanceof java.io.EOFException
+					&& db.getAgeInMilliseconds() > 1000000)
+					// assume it was a timed-out connection, and try again
+					continue;
+
+				if (db != null) {
+					try {
+						db.disconnect();
+					}
+					catch (Exception e) {}
+					db= null;
+				}
+				hgl.pException(ex);
+			}
+			catch (Exception ex) {
+				hgl.pException(ex);
+			}
+			if (db != null)
+				DB.recycleInstance(db);
+		} while (false); // yes, this is just a glorified wrapper for a goto
 	}
 
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp, DB db, HtmlGL hgl) throws Exception {

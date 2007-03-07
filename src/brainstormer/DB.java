@@ -17,6 +17,7 @@ import java.io.PrintWriter;
 public class DB {
 	Connection conn;
 	int foundSchemaVersion= -1;
+	long bornOn; // with born-on dating! no more bitter-connection-face!
 
 	User activeUser;
 	PostLoader postLoader;
@@ -70,6 +71,7 @@ public class DB {
 
 	public DB() throws SQLException {
 		initDriver();
+		bornOn= System.currentTimeMillis();
 	}
 
 	public void connect(ServletContext cx) throws SQLException {
@@ -96,6 +98,10 @@ public class DB {
 		postLoader= new PostLoader(this);
 		userLoader= new UserLoader(this);
 		auth= new Auth(this);
+	}
+
+	public long getAgeInMilliseconds() {
+		return System.currentTimeMillis() - bornOn;
 	}
 
 	public int getSchemaVersion() {
