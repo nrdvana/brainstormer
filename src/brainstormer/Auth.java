@@ -53,8 +53,7 @@ public class Auth {
 		Object[] idAndPass= getIDAndPass(c.getValue());
 		int claimedUser= ((Integer)idAndPass[0]).intValue();
 		String passHash= (String) idAndPass[1];
-		User u= claimedUser == -1? db.userLoader.loadByName("Guest")
-			: db.userLoader.loadById(claimedUser);
+		User u= db.userLoader.loadById(claimedUser);
 		return (u.passHash == null || u.passHash.equals(passHash))? u : null;
 	}
 
@@ -73,7 +72,7 @@ public class Auth {
 	}
 
 	public final Cookie getLoginCookie() {
-		return new Cookie("UserID", ""+db.activeUser.id+":"+db.activeUser.passHash);
+		return new Cookie("UserID", ""+db.activeUser.id+":"+Util.trimPossibleNull(db.activeUser.passHash));
 	}
 
 	public static final Cookie getLogoutCookie() {
