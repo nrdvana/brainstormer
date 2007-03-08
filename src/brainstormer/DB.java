@@ -18,6 +18,7 @@ public class DB {
 	Connection conn;
 	int foundSchemaVersion= -1;
 	long bornOn; // with born-on dating! no more bitter-connection-face!
+	boolean recycled= false;
 
 	User activeUser;
 	PostLoader postLoader;
@@ -53,6 +54,7 @@ public class DB {
 		synchronized (pool) {
 			if (pool.size() < 10) {
 				pool.addLast(db);
+				db.recycled= true;
 				db= null;
 			}
 		}
@@ -102,6 +104,10 @@ public class DB {
 
 	public long getAgeInMilliseconds() {
 		return System.currentTimeMillis() - bornOn;
+	}
+
+	public boolean hasBeenRecycled() {
+		return recycled;
 	}
 
 	public int getSchemaVersion() {
