@@ -18,13 +18,12 @@ public class PostViewPage extends RADServlet {
 	static final String[] styles= new String[] { "Page.css", "Widgets.css", "ViewUI.css" };
 
 	public void doGet(HttpServletRequest req, HttpServletResponse response, DB db, HtmlGL hgl) throws Exception {
-		int rootId;
-		try {
-			rootId= Integer.parseInt(req.getParameter("id"));
-		}
-		catch (Exception ex) {
-			response.sendRedirect(response.encodeRedirectURL("view?id=1"));
-			return;
+		int rootId= -1;
+		if (req.getPathInfo() != null && req.getPathInfo().length() > 1)
+			rootId= Util.parseOrDefault(req.getPathInfo().substring(1), -1);
+		if (rootId == -1) {
+			rootId= Util.parseOrDefault(req.getParameter("id"), 0);
+			response.sendRedirect(response.encodeRedirectURL(hgl.encodeURL("view/"+rootId)));
 		}
 		hgl.beginPage("Viewing tree rooted at post "+rootId, styles);
 		hgl.pNavBar(db.activeUser);
@@ -104,12 +103,12 @@ public class PostViewPage extends RADServlet {
 			hgl.p("<img src='").pURL("skin/img/Plus.gif").p("' alt='expand'/></a>\n  ");
 		}
 		if ((iconBitField&ICON_RETREE) != 0) {
-			hgl.p("<a class='btn' href='view?id=").p(node.id).p("'><img src='").pURL("skin/img/Retree.gif").p("' alt='retree'/></a>\n  ");
+			hgl.p("<a class='btn' href='").pURL("view?id="+node.id).p("'><img src='").pURL("skin/img/Retree.gif").p("' alt='retree'/></a>\n  ");
 		}
 		if ((iconBitField&ICON_JUMPTO) != 0) {
 			hgl.p("<a class='btn' href='#p").p(node.id).p("'><img src='").pURL("skin/img/JumpTo.gif").p("' alt='jump to'/></a>\n  ");
 		}
-		hgl.p("<a class='author' href='members?id=").p(node.author.id).p("'>").pText(node.author.name).p("</a>\n");
+		hgl.p("<a class='author' href='").pURL("members?id="+node.author.id).p("'>").pText(node.author.name).p("</a>\n");
 		hgl.p("  <span class='title'>").pText(node.title).p("</span>\n");
 		hgl.p("</div>\n");
 	}
@@ -119,7 +118,7 @@ public class PostViewPage extends RADServlet {
 		if (node.author.avatar != null)
 			hgl.p("<table class='posttable' cellspacing='0'><tr>\n"
 				+"  <td width='96'><div class='avatar'>\n"
-				+"    <img width='96' height='96' alt=\"user's avatar\" src='").pText(node.author.avatar).p("'/>"
+				+"    <img width='96' height='96' alt=\"user's avatar\" src='").pURL(node.author.avatar).p("'/>"
 				+"  </td><td>\n");
 		hgl.p("<div class='postbody'><div class='").p(node.content.getDBContentType()).p("'>\n");
 		node.content.render(hgl);
@@ -157,13 +156,13 @@ public class PostViewPage extends RADServlet {
 	}
 	static void renderRelationLink(HtmlGL hgl, Post p, Set<Post> renderedSet) {
 //		hgl.p("  <dd>").pText(p.author.name+" - "+p.title).p("</dd>\n");
-		hgl.p("    <dd><a href='").p(renderedSet.contains(p)? "#p" : "view?id=").p(p.id).p("'>").pText(p.author.name+" - "+p.title).p("</a></dd>\n");
+		hgl.p("    <dd><a href='").pURL((renderedSet.contains(p)? "#p" : "view/")+p.id).p("'>").pText(p.author.name+" - "+p.title).p("</a></dd>\n");
 	}
 
 	static void writeActionBar(HtmlGL hgl, Post node) {
 		hgl.p("<div class='linkbar'>\n"
-			+"  <span><a class='edit' href='edit?id=").p(node.id).p("'>Edit</a></span>\n"
-			+"  <span><a class='reply' href='create?reply=").p(node.id).p("'>Reply</a></span>\n"
+			+"  <span><a class='edit' href='").pURL("edit?id="+node.id).p("'>Edit</a></span>\n"
+			+"  <span><a class='reply' href='").pURL("create?reply="+node.id).p("'>Reply</a></span>\n"
 			+"</div>\n");
 	}
 }
