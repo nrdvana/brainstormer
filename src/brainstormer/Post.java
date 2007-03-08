@@ -13,35 +13,54 @@ import java.util.*;
  * @version $Revision$
  */
 public class Post {
-	int id;
+	final int id;
+	final User author;
+	final java.sql.Timestamp postTime;
+	java.sql.Timestamp editTime;
 	String title;
-	String[] keywords;
-	User author;
-	java.sql.Timestamp postTime, editTime;
+	String[] keywords= EMPTY_KEYWORDS;
 	PostContent content;
+
+	Post(User author) {
+		this.id= -1;
+		this.author= author;
+		this.postTime= new java.sql.Timestamp(System.currentTimeMillis());
+	}
+
+	Post(int id, User author, java.sql.Timestamp postTime) {
+		this.id= id;
+		this.author= author;
+		this.postTime= postTime;
+	}
+
+	static final String[] EMPTY_KEYWORDS= new String[0];
 
 	HashMap<String,Set<Link>>
 		inEdges= new HashMap<String,Set<Link>>(),
 		outEdges= new HashMap<String,Set<Link>>();
 
-	void updateId(int newVal) {
-		for (Set<Link> links: outEdges.values())
-			for (Link l: links)
-				l.node= newVal;
-		for (Set<Link> links: inEdges.values())
-			for (Link l: links)
-				l.peer= newVal;
-		id= newVal;
+	Collection<Link> getOutgoingEdges() {
+		LinkedList<Link> result= new LinkedList<Link>();
+		for (Set<Link> s: outEdges.values())
+			result.addAll(s);
+		return result;
 	}
 
 	void addLink(Link l) {
-		HashMap<String,Set<Link>> dest= (l.node == id)? outEdges : inEdges;
+		HashMap<String,Set<Link>> dest= (l.node == id)? outEdges : (l.peer == id)? inEdges : null;
+		if (dest == null)
+			throw new RuntimeException("Link "+l+" is not connected to Post #"+id);
 		Set<Link> set= dest.get(l.relation);
 		if (set == null) {
 			set= new HashSet<Link>();
 			dest.put(l.relation, set);
 		}
 		set.add(l);
+	}
+
+	void wipeLinks() {
+		inEdges.clear();
+		outEdges.clear();
 	}
 
 	void setContent(String contentType, String Text) {
@@ -53,11 +72,6 @@ public class Post {
 			content= new PostBBBCodeContent(Text);
 		else
 			throw new RuntimeException("Unsupported content type: "+contentType);
-	}
-
-	void wipeLinks() {
-		inEdges.clear();
-		outEdges.clear();
 	}
 
 	int[] getParents() {
@@ -100,8 +114,17 @@ class Link {
 		this.peer= peer;
 		this.relation= relation.intern();
 	}
+	public boolean equals(Object other) {
+		return (other instanceof Link)
+			&& node == ((Link)other).node
+			&& peer == ((Link)other).peer
+			&& relation.equals(((Link)other).relation);
+	}
 	public int hashCode() {
 		return node ^ (peer<<12) ^ (peer>>20) & relation.hashCode();
+	}
+	public String toString() {
+		return "["+node+","+peer+","+relation+"]";
 	}
 }
 

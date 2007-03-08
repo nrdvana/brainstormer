@@ -73,15 +73,16 @@ public class UserLoader {
 		int id= rs.getInt(rs.findColumn("ID"));
 		User u= db.userCache.get(id);
 		if (u == null) {
-			u= new User();
+			String name= rs.getString(rs.findColumn("Name"));
+			u= new User(id, name);
 			db.userCache.put(id, u);
-			u.id= id;
-			u.name= rs.getString(rs.findColumn("Name"));
 			u.passHash= rs.getString(rs.findColumn("PassHash"));
 			u.isGroup= rs.getBoolean(rs.findColumn("IsGroup"));
 			u.dateJoined= rs.getTimestamp(rs.findColumn("DateJoined"));
 			u.avatar= rs.getString(rs.findColumn("AvatarURL"));
-			u.groups= new User[rs.getInt(rs.findColumn("GroupCount"))];
+			int groupCount= rs.getInt(rs.findColumn("GroupCount"));
+			if (groupCount > 0)
+				u.groups= new User[groupCount];
 		}
 		return u;
 	}
@@ -101,8 +102,7 @@ public class UserLoader {
 	}
 
 	User newUser(String uname, String pass) throws SQLException {
-		User u= new User();
-		u.name= uname;
+		User u= new User(uname);
 		u.isGroup= false;
 		u.passHash= Auth.hashPassword(uname, pass);
 		u.avatar= null;
@@ -111,8 +111,7 @@ public class UserLoader {
 	}
 
 	User newGroup(String uname) throws SQLException {
-		User u= new User();
-		u.name= uname;
+		User u= new User(uname);
 		u.isGroup= true;
 		u.passHash= "-";
 		u.avatar= null;
@@ -121,22 +120,42 @@ public class UserLoader {
 	}
 
 	void storeUser(User u) throws SQLException {
-		boolean update= (u.id != -1);
-		PreparedStatement stmt= update? s_UpdateUser : s_InsertUser;
+		if (db.activeUser == null)
+			throw new UserException("You must be logged in before you can alter user information");
+		if (u.id == -1)
+			createUser(u);
+		else {
+			if (db.activeUser != u && !db.activeUser.isMemberOf(loadById(0)))
+				throw new UserException("You must be a member of the Admin group to alter other users");
+			PreparedStatement stmt= s_UpdateUser;
+			stmt.setString(1, u.name);
+			stmt.setString(2, u.passHash);
+			stmt.setBoolean(3, u.isGroup);
+			stmt.setString(4, u.avatar);
+			stmt.setInt(5, u.id);
+			int changed= stmt.executeUpdate();
+			if (changed != 1)
+				throw new UserException("Unable to alter user "+u.name+".  Perhaps this user was deleted?");
+		}
+	}
+
+	int createUser(User u) throws SQLException {
+		if (db.activeUser == null)
+			throw new UserException("You must be logged in before you can alter user information");
+		if (!db.activeUser.isMemberOf(loadById(0)))
+			throw new UserException("You must be a member of the Admin group to create users");
+		PreparedStatement stmt= s_InsertUser;
 		stmt.setString(1, u.name);
 		stmt.setString(2, u.passHash);
 		stmt.setBoolean(3, u.isGroup);
 		stmt.setString(4, u.avatar);
-		if (update)
-			stmt.setInt(5, u.id);
 		stmt.execute();
-		if (!update) {
-			ResultSet rs= stmt.getGeneratedKeys();
-			if (!rs.next())
-				throw new RuntimeException("Did not receive new user ID after insert");
-			u.id= rs.getInt(1);
-			rs.close();
-		}
+		ResultSet rs= stmt.getGeneratedKeys();
+		if (!rs.next())
+			throw new RuntimeException("Did not receive new user ID after insert");
+		int result= rs.getInt(1);
+		rs.close();
+		return result;
 	}
 
 	void storeUserGroups(User u) throws SQLException {

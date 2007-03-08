@@ -133,40 +133,61 @@ public class PostLoader {
 		return result;
 	}
 
+	public int createPost(Post p) throws SQLException {
+		if (p.id != -1)
+			throw new RuntimeException("Post already exists (id "+p.id+")");
+		return createPost(p.author, p.title, p.content, p.keywords, p.getOutgoingEdges());
+	}
+
+	public int createPost(User author, String title, PostContent content, String[] keywords, Collection<Link> links) throws SQLException {
+		if (db.activeUser == null)
+			throw new UserException("You must be logged in before you can create/edit posts");
+		if (!db.activeUser.isMemberOf(author))
+			throw new UserException("You don't have permission to post as "+author.name);
+		PreparedStatement stmt= s_InsertPost;
+		stmt.setString(1, title);
+		stmt.setString(2, content.getDBContentType());
+		stmt.setString(3, content.getText());
+		stmt.setInt(4, author.id);
+		stmt.executeUpdate();
+		ResultSet rs= stmt.getGeneratedKeys();
+		rs.next();
+		int postId= rs.getInt(1);
+		rs.close();
+		storeKeywords(postId, keywords);
+		storeLinks(postId, links);
+		return postId;
+	}
+
 	public void store(Post p) throws SQLException {
-		boolean insert= (p.id == -1);
-		if (insert && db.activeUser == null)
-			throw new UserException("You must be logged in before you can create posts");
-		if (!insert && !db.activeUser.isMemberOf(p.author))
-			throw new UserException("You can only edit posts that you created");
-		PreparedStatement stmt= insert? s_InsertPost : s_UpdatePost;
-		stmt.setString(1, p.title);
-		stmt.setString(2, p.content.getDBContentType());
-		stmt.setString(3, p.content.getText());
-		stmt.setInt(4, insert? p.author.id : p.id);
-		int changed= stmt.executeUpdate();
-		if (changed != 1)
-			throw new UserException("Failed to "+(insert?"insert":"update")+" post");
-		if (insert) {
-			ResultSet rs= stmt.getGeneratedKeys();
-			rs.next();
-			p.updateId(rs.getInt(1));
-			rs.close();
+		if (db.activeUser == null)
+			throw new UserException("You must be logged in before you can create/edit posts");
+		if (p.id == -1)
+			createPost(p);
+		else {
+			if (!db.activeUser.isMemberOf(p.author))
+				throw new UserException("You don't have permission to edit posts made by "+p.author.name);
+			PreparedStatement stmt= s_UpdatePost;
+			stmt.setString(1, p.title);
+			stmt.setString(2, p.content.getDBContentType());
+			stmt.setString(3, p.content.getText());
+			stmt.setInt(4, p.id);
+			int changed= stmt.executeUpdate();
+			if (changed != 1)
+				throw new UserException("Failed to update post  (maybe it doesn't exist anymore?)");
+			storeKeywords(p.id, p.keywords);
+			storeLinks(p.id, p.getOutgoingEdges());
 		}
-		storeKeywords(p);
-		storeLinks(p);
 	}
 
 	private Post postFromResultSet(ResultSet rs) throws SQLException {
 		int id= rs.getInt(1);
 		Post ret= db.postCache.get(id);
 		if (ret == null) {
-			ret= new Post();
+			User author= db.userLoader.loadById(rs.getInt(2));
+			ret= new Post(id, author, rs.getTimestamp(4));
 			db.postCache.put(id, ret);
-			ret.id= id;
-			ret.author= db.userLoader.loadById(rs.getInt(2));
 			ret.title= rs.getString(3);
-			ret.postTime= rs.getTimestamp(4);
 			ret.editTime= rs.getTimestamp(5);
 			String contentType= rs.getString(6);
 			ret.setContent(contentType, rs.getString(7));
@@ -184,11 +205,11 @@ public class PostLoader {
 		p.keywords= keywords.toArray(new String[keywords.size()]);
 	}
 
-	private void storeKeywords(Post p) throws SQLException {
-		s_WipeKeywords.setInt(1, p.id);
+	private void storeKeywords(int id, String[] keywords) throws SQLException {
+		s_WipeKeywords.setInt(1, id);
 		s_WipeKeywords.execute();
-		for (String keyword: p.keywords) {
-			s_InsertKeyword.setInt(1, p.id);
+		for (String keyword: keywords) {
+			s_InsertKeyword.setInt(1, id);
 			s_InsertKeyword.setString(2, keyword);
 			s_InsertKeyword.addBatch();
 		}
@@ -205,16 +226,15 @@ public class PostLoader {
 		rs.close();
 	}
 
-	private void storeLinks(Post p) throws SQLException {
-		s_WipeLinks.setInt(1, p.id);
+	private void storeLinks(int id, Collection<Link> links) throws SQLException {
+		s_WipeLinks.setInt(1, id);
 		s_WipeLinks.execute();
-		for (Set<Link> links: p.outEdges.values())
-			for (Link l: links) {
-				s_InsertLink.setInt(1, p.id);
-				s_InsertLink.setInt(2, l.peer);
-				s_InsertLink.setString(3, l.relation);
-				s_InsertLink.addBatch();
-			}
+		for (Link l: links) {
+			s_InsertLink.setInt(1, id);
+			s_InsertLink.setInt(2, l.peer);
+			s_InsertLink.setString(3, l.relation);
+			s_InsertLink.addBatch();
+		}
 		int[] result= s_InsertLink.executeBatch();
 		DB.assertBatchSucceed(result, "inserting keywords");
 	}

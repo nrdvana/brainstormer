@@ -12,15 +12,32 @@ import java.util.*;
  * @version $Revision$
  */
 public class User {
-	int id= -1;
-	String name;
+	final int id;
+	final String name;
 	String passHash;
 	boolean isGroup;
 	java.sql.Timestamp dateJoined;
 	String avatar;
-
 	User[] groups= EMPTY_LIST;
+
 	private static final User[] EMPTY_LIST= new User[0];
+
+	public User(int id, String name) {
+		this.id= id;
+		this.name= name;
+	}
+
+	public User(String name) {
+		this.id= -1;
+		this.name= name;
+	}
+
+	public String debugInfo() {
+		String result= "obj="+super.toString()+",id="+id+",name="+name+",groups=[";
+		for (User u: groups)
+			result+=u.debugInfo();
+		return result+"]";
+	}
 
 	public boolean isMemberOf(User group) {
 		Set<User> visitedSet= new HashSet<User>();
