@@ -1,8 +1,6 @@
 package brainstormer;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.*;
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -123,8 +121,12 @@ public class PostEditPage extends RADServlet {
 		switch (fields.userEvent) {
 		case Post:
 			Post p= postObjFromFields(fields, db);
-			db.postLoader.store(p);
-			response.sendRedirect(response.encodeRedirectURL("view?id="+p.id));
+			int redirectId= p.id;
+			if (p.id == -1)
+				redirectId= db.postLoader.createPost(p);
+			else
+				db.postLoader.store(p);
+			response.sendRedirect(response.encodeRedirectURL("view?id="+redirectId));
 			break;
 		case TabChange:
 			fields.ActiveTab= findClickedTabIndex(req.getParameter("TabChange"));
@@ -149,14 +151,9 @@ public class PostEditPage extends RADServlet {
 	}
 
 	static Post postObjFromFields(PageFields fields, DB db) throws SQLException {
-		Post result= (fields.PostID == -1)? new Post() : db.postLoader.loadById(fields.PostID);
+		Post result= (fields.PostID == -1)? new Post(db.activeUser) : db.postLoader.loadById(fields.PostID);
 		result.title= fields.Title;
 		result.keywords= fields.Keywords;
-		result.editTime= new java.sql.Timestamp(System.currentTimeMillis());
-		if (fields.PostID == -1) {
-			result.author= db.activeUser;
-			result.postTime=  result.editTime;
-		}
 		switch (fields.ActiveTab) {
 		case 0:
 			result.setContent(fields.TextType, fields.Text);
