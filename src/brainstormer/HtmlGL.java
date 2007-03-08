@@ -17,9 +17,9 @@ import java.text.SimpleDateFormat;
 public class HtmlGL {
 	HttpServletRequest request;
 	HttpServletResponse response;
-	boolean expandCollapseImported= false;
-	boolean htmlTagOpen= false;
-	String pathToServletRoot= null;
+	private boolean expandCollapseImported= false;
+	private boolean htmlTagOpen= false;
+	private String pathToServletRoot= null;
 	SimpleDateFormat dateFormatter= new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
 	PrintWriter out;
@@ -111,6 +111,13 @@ public class HtmlGL {
 			pos= nextPos+1;
 		}
 		return pText(unescapedText.substring(pos));
+	}
+
+	public final String encodeURL(String pathFromRoot) {
+		if (pathToServletRoot != null)
+			return pathToServletRoot+response.encodeURL(pathFromRoot);
+		else
+			return response.encodeURL(pathFromRoot);
 	}
 
 	public final HtmlGL pURL(String pathFromRoot) {
