@@ -62,11 +62,8 @@ public class RADServlet extends HttpServlet {
 				}
 			}
 			catch (SQLException ex) {
-				if (ex instanceof com.mysql.jdbc.CommunicationsException
-					&& ex.getCause() != null
-					&& ex.getCause() instanceof java.io.EOFException
-					&& db.getAgeInMilliseconds() > 1000000)
-					// assume it was a timed-out connection, and try again
+				// if we have communication problems, try again, unless we had a fresh connection
+				if (ex instanceof com.mysql.jdbc.CommunicationsException && db.hasBeenRecycled())
 					continue;
 
 				if (db != null) {
