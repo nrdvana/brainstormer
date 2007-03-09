@@ -3,7 +3,7 @@ package brainstormer;
 import javax.servlet.http.*;
 import java.io.IOException;
 import java.sql.*;
-import java.io.PrintWriter;
+import java.io.*;
 
 /**
  * <p>Project: Brainstormer</p>
@@ -15,7 +15,7 @@ import java.io.PrintWriter;
  * @version $Revision$
  */
 public class RADServlet extends HttpServlet {
-	static class ServletContextLogger extends PrintWriter {
+	static class ServletContextLogger extends PrintStream {
 		javax.servlet.ServletContext cx;
 		ServletContextLogger(javax.servlet.ServletContext cx) {
 			super(System.out);
@@ -25,12 +25,22 @@ public class RADServlet extends HttpServlet {
 			cx.log(s);
 		}
 	}
+	static final Object lock= new Object();
+	static PrintStream logger= null;
 
 	public RADServlet() {
 	}
 
 	public void init() {
-		DriverManager.setLogWriter(new ServletContextLogger(getServletContext()));
+		synchronized (lock) {
+			if (logger == null) {
+				logger= new ServletContextLogger(getServletContext());
+				System.setOut(logger);
+				System.setErr(logger);
+				DriverManager.setLogWriter(new PrintWriter(logger));
+				logger.println("lalala unique string  (init of "+getClass().getName()+")");
+			}
+		}
 	}
 
 	protected void fail(String msg) {
