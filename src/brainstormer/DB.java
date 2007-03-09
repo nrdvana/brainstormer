@@ -18,7 +18,7 @@ public class DB {
 	Connection conn;
 	int foundSchemaVersion= -1;
 	long bornOn; // with born-on dating! no more bitter-connection-face!
-	boolean recycled= false;
+	long recycleCount= 0;
 
 	User activeUser;
 	PostLoader postLoader;
@@ -27,13 +27,13 @@ public class DB {
 	Map<Integer,Post> postCache= new HashMap<Integer,Post>();
 	Map<Integer,User> userCache= new HashMap<Integer,User>();
 
-	private static final LinkedList pool= new LinkedList();
+	static final LinkedList<DB> pool= new LinkedList<DB>();
 	private static boolean driverFound= false;
 
 	public static DB getInstance(ServletContext context) throws DBInitException {
 		synchronized (pool) {
 			if (pool.size() > 0)
-				return (DB) pool.removeFirst();
+				return pool.removeFirst();
 		}
 		try {
 			DB result= new DB();
@@ -53,8 +53,8 @@ public class DB {
 		db.activeUser= null;
 		synchronized (pool) {
 			if (pool.size() < 10) {
+				db.recycleCount++;
 				pool.addLast(db);
-				db.recycled= true;
 				db= null;
 			}
 		}
@@ -106,8 +106,8 @@ public class DB {
 		return System.currentTimeMillis() - bornOn;
 	}
 
-	public boolean hasBeenRecycled() {
-		return recycled;
+	public long getRecycleCount() {
+		return recycleCount;
 	}
 
 	public int getSchemaVersion() {

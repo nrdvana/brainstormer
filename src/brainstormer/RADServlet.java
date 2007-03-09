@@ -63,7 +63,7 @@ public class RADServlet extends HttpServlet {
 			}
 			catch (SQLException ex) {
 				// if we have communication problems, try again, unless we had a fresh connection
-				if (ex instanceof com.mysql.jdbc.CommunicationsException && db.hasBeenRecycled())
+				if (ex instanceof com.mysql.jdbc.CommunicationsException && db.getRecycleCount() > 0)
 					continue;
 
 				if (db != null) {
