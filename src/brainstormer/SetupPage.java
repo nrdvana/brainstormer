@@ -25,19 +25,24 @@ public class SetupPage extends HttpServlet {
 
 	public void doGet(HttpServletRequest req, HttpServletResponse response) throws IOException {
 		HtmlGL hgl= new HtmlGL(req, response);
-		ServletContext cx= getServletContext();
-		DBStatus dbStat= new DBStatus();
-		DB db= null;
 		try {
-			db= DB.getInstance(cx);
-			dbStat.driverStat= dbStat.connStat= dbStat.schemaStat= 1;
+			ServletContext cx= getServletContext();
+			DBStatus dbStat= new DBStatus();
+			DB db= null;
+			try {
+				db= DB.getInstance(cx);
+				dbStat.driverStat= dbStat.connStat= dbStat.schemaStat= 1;
+			}
+			catch (DBInitException ex) {
+				diagnoseDBFailure(dbStat);
+			}
+			hgl.beginPage("Setup", styles, db);
+			renderPage(db, dbStat, hgl);
+			hgl.endPage();
 		}
-		catch (DBInitException ex) {
-			diagnoseDBFailure(dbStat);
+		catch (Exception ex) {
+			hgl.pException(ex);
 		}
-		hgl.beginPage("Setup", styles);
-		renderPage(db, dbStat, hgl);
-		hgl.endPage();
 	}
 
 	public void doPost(HttpServletRequest req, HttpServletResponse response) throws IOException {
@@ -60,7 +65,7 @@ public class SetupPage extends HttpServlet {
 		}
 	}
 
-	void renderPage(DB db, DBStatus dbStat, HtmlGL hgl) throws IOException {
+	void renderPage(DB db, DBStatus dbStat, HtmlGL hgl) throws Exception {
 		ServletContext cx= getServletContext();
 		hgl.p("<h3>Settings:</h3>\n"
 			+"(from WEB-INF/web.xml)<br/>\n"
@@ -77,6 +82,20 @@ public class SetupPage extends HttpServlet {
 		hgl.p("<br/>\nSchema: ").p(status[dbStat.schemaStat+1]);
 		if (dbStat.schemaFailure != null)
 			hgl.p(": "+dbStat.schemaFailure);
+		if (db != null) {
+			hgl.p("<br/>Transaction Isolation: ");
+			int iso= db.conn.getTransactionIsolation();
+			switch (iso) {
+			case Connection.TRANSACTION_READ_UNCOMMITTED: hgl.p("READ UNCOMITTED"); break;
+			case Connection.TRANSACTION_READ_COMMITTED:   hgl.p("READ COMMITTED"); break;
+			case Connection.TRANSACTION_REPEATABLE_READ:  hgl.p("REPEATABLE READ"); break;
+			case Connection.TRANSACTION_SERIALIZABLE:     hgl.p("SERIALIZABLE"); break;
+			case Connection.TRANSACTION_NONE: hgl.p("Not supported"); break;
+			default:
+				hgl.p("Unknown");
+			}
+			hgl.p("<br/>Autocommit: "+db.conn.getAutoCommit());
+		}
 		if (dbStat.connStat == -1)
 			hgl.p("<hr/><br/>\n<form action='setup' method='post'>\n"
 				+"You can have the servlet automatically create your database.<br/>\n"
@@ -134,7 +153,12 @@ public class SetupPage extends HttpServlet {
 		if (startVersion < 1 && forumAdminName.length() != 0) { // need to add admin user, if given
 			db.init(); // is now safe to prepare queries, etc
 			try {
-				db.userLoader.newUser(forumAdminName, forumAdminPass);
+				User u= db.userLoader.newUser(forumAdminName, forumAdminPass);
+				User root= db.userLoader.loadById(0);
+				if (root == null)
+					throw new RuntimeException("Root user does not exist");
+				u.groups= new User[] {root};
+				db.userLoader.storeUser(u);
 			}
 			catch (Exception ex) {
 				throw new RuntimeException("Error while adding the default admin user "+forumAdminName+":", ex);
