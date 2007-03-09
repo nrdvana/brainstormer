@@ -79,6 +79,7 @@
     <property category="archiving" name="contentRules.11" value="F:www/skin/style/SearchUI.css;skin/style/SearchUI.css"/>
     <property category="archiving" name="contentRules.12" value="F:www/skin/img/JumpTo.gif;skin/img/JumpTo.gif"/>
     <property category="archiving" name="contentRules.13" value="F:www/skin/style/LoginUI.css;skin/style/LoginUI.css"/>
+    <property category="archiving" name="contentRules.14" value="F:www/skin/style/MemberUI.css;skin/style/MemberUI.css"/>
     <property category="archiving" name="contentRules.2" value="F:www/skin/style/Page.css;skin/style/Page.css"/>
     <property category="archiving" name="contentRules.3" value="F:www/skin/style/ViewUI.css;skin/style/ViewUI.css"/>
     <property category="archiving" name="contentRules.4" value="F:www/skin/style/EditUI.css;skin/style/EditUI.css"/>
@@ -94,6 +95,7 @@
   <file path="www/skin/style/EditUI.css"/>
   <file path="www/scripts/ExpandCollapse.js"/>
   <file path="www/skin/style/LoginUI.css"/>
+  <file path="www/skin/style/MemberUI.css"/>
   <file path="www/skin/style/Page.css"/>
   <file path="www/skin/style/SearchUI.css"/>
   <file path="www/skin/style/ViewUI.css"/>
