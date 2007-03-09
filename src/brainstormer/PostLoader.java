@@ -55,10 +55,9 @@ public class PostLoader {
 	}
 
 	public Post loadById(int searchId) throws SQLException {
-		s_SelectPostFields.setInt(1, searchId);
-		s_SelectPostFields.execute();
 		Post ret= null;
-		ResultSet rs= s_SelectPostFields.getResultSet();
+		s_SelectPostFields.setInt(1, searchId);
+		ResultSet rs= s_SelectPostFields.executeQuery();
 		if (rs.next()) {
 			ret= postFromResultSet(rs);
 			if (ret.keywords == null)
@@ -207,7 +206,7 @@ public class PostLoader {
 
 	private void storeKeywords(int id, String[] keywords) throws SQLException {
 		s_WipeKeywords.setInt(1, id);
-		s_WipeKeywords.execute();
+		s_WipeKeywords.executeUpdate();
 		for (String keyword: keywords) {
 			s_InsertKeyword.setInt(1, id);
 			s_InsertKeyword.setString(2, keyword);
@@ -228,7 +227,7 @@ public class PostLoader {
 
 	private void storeLinks(int id, Collection<Link> links) throws SQLException {
 		s_WipeLinks.setInt(1, id);
-		s_WipeLinks.execute();
+		s_WipeLinks.executeUpdate();
 		for (Link l: links) {
 			s_InsertLink.setInt(1, id);
 			s_InsertLink.setInt(2, l.peer);

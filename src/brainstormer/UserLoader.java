@@ -21,7 +21,7 @@ public class UserLoader {
 		s_WipeGroupMemberships, s_AddGroupMembership;
 
 	static final String
-		userFields= "u.ID, u.Name, u.PassHash, u.IsGroup, u.DateJoined, u.AvatarURL, count(gcount.GroupID) as GroupCount ",
+		userFields= "u.ID, u.Name, u.PassHash, u.IsGroup, u.DateJoined, u.AvatarURL, count(*) as GroupCount ",
 		userTable= "User u ",
 		userJoin= "LEFT JOIN GroupMembership gcount ON u.ID = gcount.UserID ",
 		userGroupBy= "GROUP BY u.ID ",
@@ -65,6 +65,8 @@ public class UserLoader {
 			if (ret.groups.length > 0 && ret.groups[0] == null)
 				loadUserGroups(ret);
 		}
+		if (rs.next())
+			throw new RuntimeException("Multiple rows returned??");
 		rs.close();
 		return ret;
 	}
@@ -149,7 +151,7 @@ public class UserLoader {
 		stmt.setString(2, u.passHash);
 		stmt.setBoolean(3, u.isGroup);
 		stmt.setString(4, u.avatar);
-		stmt.execute();
+		stmt.executeUpdate();
 		ResultSet rs= stmt.getGeneratedKeys();
 		if (!rs.next())
 			throw new RuntimeException("Did not receive new user ID after insert");
@@ -161,12 +163,12 @@ public class UserLoader {
 	void storeUserGroups(User u) throws SQLException {
 		PreparedStatement stmt= s_WipeGroupMemberships;
 		stmt.setInt(1, u.id);
-		stmt.execute();
+		stmt.executeUpdate();
 		stmt= s_AddGroupMembership;
 		for (User g: u.groups) {
 			stmt.setInt(1, g.id);
 			stmt.addBatch();
 		}
-		stmt.executeBatch();
+		DB.assertBatchSucceed(stmt.executeBatch(), "adding user's group membership");
 	}
 }
