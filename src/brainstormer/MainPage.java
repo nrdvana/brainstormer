@@ -19,8 +19,7 @@ public class MainPage extends RADServlet {
 		if (req.getPathInfo() != null)
 			resp.sendError(404);
 		else {
-			hgl.beginPage("Brainstormer", styles);
-			hgl.pNavBar(db.activeUser);
+			hgl.beginPage("Brainstormer", styles, db);
 			hgl.p("<div class='main'>");
 			Post root= db.postLoader.loadById(0);
 			root.content.render(hgl);

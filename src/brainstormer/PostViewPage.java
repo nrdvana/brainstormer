@@ -25,8 +25,7 @@ public class PostViewPage extends RADServlet {
 			rootId= Util.parseOrDefault(req.getParameter("id"), 0);
 			response.sendRedirect(response.encodeRedirectURL(hgl.encodeURL("view/"+rootId)));
 		}
-		hgl.beginPage("Viewing tree rooted at post "+rootId, styles);
-		hgl.pNavBar(db.activeUser);
+		hgl.beginPage("Viewing tree rooted at post "+rootId, styles, db);
 		hgl.p("<div class='content'>");
 		Post root= db.postLoader.loadById(rootId);
 		renderTree(db, hgl, root);

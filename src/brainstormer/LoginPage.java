@@ -49,14 +49,14 @@ public class LoginPage extends RADServlet {
 			if (db.activeUser != null && db.activeUser.id == Util.parseOrDefault(req.getParameter("expectedId"), -2))
 				response.sendRedirect(response.encodeRedirectURL(fields.destination));
 			else
-				renderMissingCookieError(hgl);
+				renderMissingCookieError(hgl, db);
 		}
 		else if (req.getServletPath().equals("/logout")) {
 			response.addCookie(Auth.getLogoutCookie());
 			response.sendRedirect(response.encodeRedirectURL(fields.destination));
 		}
 		else
-			renderLoginForm(fields, hgl);
+			renderLoginForm(fields, hgl, db);
 	}
 
 	public void doPost(HttpServletRequest req, HttpServletResponse response, DB db, HtmlGL hgl) throws Exception {
@@ -70,12 +70,12 @@ public class LoginPage extends RADServlet {
 		}
 		else {
 			fields.displayFailure= true;
-			renderLoginForm(fields, hgl);
+			renderLoginForm(fields, hgl, db);
 		}
 	}
 
-	public static void renderLoginForm(PageFields fields, HtmlGL hgl) {
-		hgl.beginPage("Login", styles);
+	public static void renderLoginForm(PageFields fields, HtmlGL hgl, DB db) {
+		hgl.beginPage("Login", styles, db);
 		hgl.p("<div class='content'>\n");
 		if (fields.displayFailure) {
 			hgl.p("  ").beginErrorMsg("Login failed");
@@ -100,8 +100,8 @@ public class LoginPage extends RADServlet {
 		hgl.endPage();
 	}
 
-	public static void renderMissingCookieError(HtmlGL hgl) {
-		hgl.beginPage("Enable Cookies", styles);
+	public static void renderMissingCookieError(HtmlGL hgl, DB db) {
+		hgl.beginPage("Enable Cookies", styles, db);
 		hgl.beginErrorMsg();
 		hgl.pText("Login succeeded, but the cookie didn't stick.").p("<br/>\n Please enable cookies.\n");
 		hgl.endErrorMsg();

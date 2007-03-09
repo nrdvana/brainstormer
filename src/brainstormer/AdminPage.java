@@ -19,12 +19,12 @@ public class AdminPage extends RADServlet {
 
 
 	public void doGet(HttpServletRequest req, HttpServletResponse response, DB db, HtmlGL hgl) throws Exception {
-		renderPage(db, hgl);
+		renderPage(hgl, db);
 	}
 
 	public void doPost(HttpServletRequest req, HttpServletResponse response, DB db, HtmlGL hgl) throws Exception {
 		if (db.activeUser == null || !db.activeUser.isMemberOf(db.userLoader.loadByName("Admin")))
-			renderDenied(hgl);
+			renderDenied(hgl, db);
 		else {
 			if (req.getParameter("newUser") != null)
 				addUser(req.getParameter("newUserName"), req.getParameter("newUserPass"), false, hgl);
@@ -34,9 +34,8 @@ public class AdminPage extends RADServlet {
 		}
 	}
 
-	void renderPage(DB db, HtmlGL hgl) throws IOException {
-		hgl.beginPage("Admin", styles);
-		hgl.pNavBar(db.activeUser);
+	void renderPage(HtmlGL hgl, DB db) throws IOException {
+		hgl.beginPage("Admin", styles, db);
 		hgl.p("<div class='content'>\n");
 		hgl.p("<form action='admin' method='post'>\n"
 			+"Add a user: <input type='text' name='newUserName'/> Pass:<input type='password' name='newUserPass'/><input type='submit' name='newUser' value='Add'/><br/>\n"
@@ -46,8 +45,8 @@ public class AdminPage extends RADServlet {
 		hgl.endPage();
 	}
 
-	void renderDenied(HtmlGL hgl) {
-		hgl.beginPage("Admin", styles);
+	void renderDenied(HtmlGL hgl, DB db) {
+		hgl.beginPage("Admin", styles, db);
 		hgl.p("<div class='content'>\n");
 		hgl.beginErrorMsg();
 		hgl.p("<h4>You are not an administrator</h4>\n");

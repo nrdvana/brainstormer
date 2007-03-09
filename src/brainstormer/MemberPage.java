@@ -52,21 +52,19 @@ public class MemberPage extends RADServlet {
 	}
 
 	public static void renderMemberList(DB db, HtmlGL hgl) throws IOException {
-		hgl.beginPage("List of members", styles);
-		hgl.pNavBar(db.activeUser);
+		hgl.beginPage("List of members", styles, db);
 		hgl.p("<h3>Listing unavailable</h4>");
 		hgl.endPage();
 	}
 
 	public static void renderUserNotExistError(HtmlGL hgl, String userName) throws IOException {
-		hgl.beginPage("User does not exist", styles);
+		hgl.beginPage("User does not exist", styles, null);
 		hgl.p("<h3>").pText(userName).p(" is not a valid user name</h4>");
 		hgl.endPage();
 	}
 
 	public static void renderUserPage(HtmlGL hgl, DB db, User user) throws IOException {
-		hgl.beginPage("Member "+user.name, styles);
-		hgl.pNavBar(db.activeUser);
+		hgl.beginPage("Member "+user.name, styles, db);
 		renderUser(hgl, user);
 		hgl.endPage();
 	}

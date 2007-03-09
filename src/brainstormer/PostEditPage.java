@@ -170,8 +170,7 @@ public class PostEditPage extends RADServlet {
 
 	void renderPage(PageFields fields, DB db, HtmlGL hgl) throws Exception {
 		String postTarget= fields.PostID != -1? "edit" : "create";
-		hgl.beginPage("Edit Post", styles);
-		hgl.pNavBar(db.activeUser);
+		hgl.beginPage("Edit Post", styles, db);
 		hgl.p("<div class='content'>"
 			+"<form action='").pURL(postTarget).p("' method='post'><div>\n"
 			+"  <input type='hidden' name='CurTab' value='").p(fields.ActiveTab).p("'/>\n"

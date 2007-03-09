@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 import javax.servlet.http.*;
 import java.text.SimpleDateFormat;
+import java.sql.Connection;
 
 /**
  * <p>Project: Brainstormer</p>
@@ -42,17 +43,18 @@ public class HtmlGL {
 			}
 		}
 	}
-	private void debugRequestData() {
-		p("<!--\n");
+	private void debugData(DB db) {
+		p("<!--");
 		try {
+			p("\nTime = "+System.currentTimeMillis());
 			for (java.lang.reflect.Method func: request.getClass().getMethods()) {
 				if (func.getReturnType() == String.class && func.getParameterTypes().length == 0) {
 					String val= (String) func.invoke(request, new Object[0]);
-					pText(func.getName()+" = "+val).p("\n");
+					p("\n").pText(func.getName()+" = "+val);
 				}
 			}
 			for (Map.Entry entry: (Set<Map.Entry>) request.getParameterMap().entrySet()) {
-				p(entry.getKey().toString());
+				p("\n").p(entry.getKey().toString());
 				if (entry.getValue() == null)
 					p("= null");
 				else {
@@ -61,28 +63,42 @@ public class HtmlGL {
 						pText(val).p(", ");
 					p("]");
 				}
-				p("\n");
 			}
 			if (request.getCookies() != null)
 				for (Cookie c: request.getCookies()) {
-					p("Cookie:\n");
+					p("\nCookie:");
 					for (java.lang.reflect.Method func: c.getClass().getMethods()) {
 						if (func.getName().startsWith("get") && func.getParameterTypes().length == 0) {
 							Object val= func.invoke(c, new Object[0]);
-							pText("   "+func.getName()+" = "+val).p("\n");
+							pText("\n   "+func.getName()+" = "+val);
 						}
 					}
 				}
+			if (db != null) {
+				p("\nDB object: "+db+"  Uses: "+(db.getRecycleCount()+1));
+				p("\nTransaction Isolation: ");
+				int iso= db.conn.getTransactionIsolation();
+				switch (iso) {
+				case Connection.TRANSACTION_READ_UNCOMMITTED: p("READ UNCOMITTED"); break;
+				case Connection.TRANSACTION_READ_COMMITTED:   p("READ COMMITTED"); break;
+				case Connection.TRANSACTION_REPEATABLE_READ:  p("REPEATABLE READ"); break;
+				case Connection.TRANSACTION_SERIALIZABLE:     p("SERIALIZABLE"); break;
+				case Connection.TRANSACTION_NONE: p("Not supported"); break;
+				default:
+					p("Unknown");
+				}
+				p("\nAutocommit: "+db.conn.getAutoCommit());
+			}
 		}
 		catch (Exception miscelaneousReflectionBullshitException) {
 			throw new RuntimeException(miscelaneousReflectionBullshitException);
 		}
-		p("-->\n");
+		p("\n-->\n");
 	}
 
 	void beginPageIfNeeded() {
 		if (!htmlTagOpen)
-			beginPage("Error", new String[] {"Page.css"});
+			beginPage("Error", new String[] {"Page.css"}, null);
 	}
 	void endPageIfNeeded() {
 		if (htmlTagOpen)
@@ -163,7 +179,7 @@ public class HtmlGL {
 		return (c == '&' || c == '\'' || c == '"' || c == '<' || c == '>' || c == '\\');
 	}
 
-	public void beginPage(String title, String[] stylesheets) {
+	public void beginPage(String title, String[] stylesheets, DB db) {
 		initStreamIfNeeded();
 		p("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\n"
 			+"<html>\n"
@@ -174,8 +190,21 @@ public class HtmlGL {
 		p("</head>\n<body>\n");
 		p("<div id='content'>\n");
 		p("<div class='lame-browser'>This page not intended for use with old browsers.  In particular, IE6 just kinda sucks.</div>\n");
+		p("<div class='navbar'>\n"
+			+"  <ul>\n"
+			+"    <li><a href='").pURL("index.html").p("'>Home</a></li>\n"
+			+"    <li><a href='").pURL("search").p("'>Search</a></li>\n");
+		if (db != null && db.activeUser != null) {
+			p("   <li>").pText(db.activeUser.name).p("</li>");
+			p("    <li><a href='").pURL("create").p("'>New Post</a></li>\n"
+				+"    <li><a href='").pURL("logout").p("'>Log Out</a></li>\n");
+		}
+		else
+			p("    <li><a href='").pURL("login").p("'>Log In</a></li>\n");
+		p("  </ul>\n"
+			+"</div>\n");
 		htmlTagOpen= true;
-		debugRequestData();
+		debugData(db);
 	}
 
 	public void endPage() {
@@ -189,20 +218,6 @@ public class HtmlGL {
 		out.flush();
 		out.close();
 		htmlTagOpen= false;
-	}
-
-	public void pNavBar(User u) {
-		p("<div class='navbar'>\n"
-			+"  <ul>\n"
-			+"    <li><a href='").pURL("index.html").p("'>Home</a></li>\n"
-			+"    <li><a href='").pURL("search").p("'>Search</a></li>\n");
-		if (u != null)
-			p("    <li><a href='").pURL("create").p("'>New Post</a></li>\n"
-				+"    <li><a href='").pURL("logout").p("'>Log Out</a></li>\n");
-		else
-			p("    <li><a href='").pURL("login").p("'>Log In</a></li>\n");
-		p("  </ul>\n"
-			+"</div>\n");
 	}
 
 	public final void beginErrorMsg() {

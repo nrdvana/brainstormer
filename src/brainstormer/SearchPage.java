@@ -41,8 +41,7 @@ public class SearchPage extends RADServlet {
 				action= ss;
 				break;
 			}
-		hgl.beginPage("Search", styles);
-		hgl.pNavBar(db.activeUser);
+		hgl.beginPage("Search", styles, db);
 		hgl.p("<div class='content'>\n");
 		renderSearchOptions(phrase, hgl);
 		if (action != SearchAction.None) {
