@@ -136,7 +136,7 @@ public class DB {
 		driverFound= true;
 	}
 
-	private int loadSchemaVersion() {
+	int loadSchemaVersion() {
 		try {
 			Statement stmt= conn.createStatement();
 			ResultSet rs= stmt.executeQuery("SELECT Version FROM SchemaVersion");

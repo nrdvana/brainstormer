@@ -43,7 +43,7 @@ public class HtmlGL {
 			}
 		}
 	}
-	private void debugData(DB db) {
+	public void pDebugData(DB db) {
 		p("<!--");
 		try {
 			p("\nTime = "+System.currentTimeMillis());
@@ -204,7 +204,8 @@ public class HtmlGL {
 		p("  </ul>\n"
 			+"</div>\n");
 		htmlTagOpen= true;
-		debugData(db);
+		if (request.getParameter("debug") != null)
+			pDebugData(db);
 	}
 
 	public void endPage() {

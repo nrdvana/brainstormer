@@ -64,6 +64,7 @@ public class PostEditPage extends RADServlet {
 			PostID= p.id;
 			Title= Util.trimPossibleNull(p.title);
 			Keywords= p.keywords == null? new String[0] : p.keywords;
+			TextType= p.content.getDBContentType();
 			Text= Util.trimPossibleNull(p.content.getText());
 			for (int id: p.getParents())
 				ReplyToSet.add(id);
@@ -161,6 +162,7 @@ public class PostEditPage extends RADServlet {
 		default:
 			result.setContent("plain", "");
 		}
+		result.wipeLinks();
 		for (Integer peer: fields.ReplyToSet)
 			result.addLink(new Link(result.id, peer, "reply"));
 		for (Integer peer: fields.TopicSet)

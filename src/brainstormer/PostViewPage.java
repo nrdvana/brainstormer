@@ -74,6 +74,7 @@ public class PostViewPage extends RADServlet {
 			int[] children= node.getChildren();
 			if (children.length > 0) {
 				hgl.p("<div class='postchildren'>\n");
+				Arrays.sort(children); // sorting by ID has mostly the same effect as sorting by PostDate
 				int idx= 0;
 				for (int childId: children) {
 					Post child= db.postLoader.loadById(childId);

@@ -66,16 +66,26 @@ public class RADServlet extends HttpServlet {
 			try {
 				db= DB.getInstance(getServletContext());
 				db.activeUser= db.auth.authenticateCurrentUser(req);
-				switch (acn) {
-				case Get:  doGet(req, resp, db, hgl);  break;
-				case Post: doPost(req, resp, db, hgl); break;
+				if (db.activeUser == null && db.getRecycleCount() > 0)
+					// if noone is logged in, and this is a reused connection
+					// we haven't run a query yet, and could have communication
+					// problems.  So run a query to test it.
+					db.loadSchemaVersion();
+				try {
+					switch (acn) {
+					case Get:  doGet(req, resp, db, hgl);  break;
+					case Post: doPost(req, resp, db, hgl); break;
+					}
 				}
+				catch (Exception ex) {
+					hgl.pException(ex);
+				}
+				DB.recycleInstance(db);
 			}
-			catch (SQLException ex) {
+			catch (Exception ex) {
 				// if we have communication problems, try again, unless we had a fresh connection
-				if (ex instanceof com.mysql.jdbc.CommunicationsException && db.getRecycleCount() > 0)
+				if (db.getRecycleCount() > 0)
 					continue;
-
 				if (db != null) {
 					try {
 						db.disconnect();
@@ -85,11 +95,6 @@ public class RADServlet extends HttpServlet {
 				}
 				hgl.pException(ex);
 			}
-			catch (Exception ex) {
-				hgl.pException(ex);
-			}
-			if (db != null)
-				DB.recycleInstance(db);
 		} while (false); // yes, this is just a glorified wrapper for a goto
 	}
 
