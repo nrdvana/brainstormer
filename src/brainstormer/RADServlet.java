@@ -62,6 +62,8 @@ public class RADServlet extends HttpServlet {
 	protected void handleWithExtendedParams(HttpAction acn, HttpServletRequest req, HttpServletResponse resp) {
 		HtmlGL hgl= new HtmlGL(req, resp);
 		DB db= null;
+		// In case of DB communication problems, we might need multiple attempts
+		boolean retry= false;
 		do {
 			try {
 				db= DB.getInstance(getServletContext());
@@ -70,7 +72,8 @@ public class RADServlet extends HttpServlet {
 					// if noone is logged in, and this is a reused connection
 					// we haven't run a query yet, and could have communication
 					// problems.  So run a query to test it.
-					db.loadSchemaVersion();
+					// We probably need to load user 0 anyway
+					db.userLoader.loadById(0);
 				try {
 					switch (acn) {
 					case Get:  doGet(req, resp, db, hgl);  break;
@@ -83,19 +86,20 @@ public class RADServlet extends HttpServlet {
 				DB.recycleInstance(db);
 			}
 			catch (Exception ex) {
-				// if we have communication problems, try again, unless we had a fresh connection
-				if (db.getRecycleCount() > 0)
-					continue;
 				if (db != null) {
 					try {
 						db.disconnect();
 					}
 					catch (Exception e) {}
+					// if we have communication problems, try again, unless we had a fresh connection
+					retry= db.getRecycleCount() > 0;
 					db= null;
 				}
-				hgl.pException(ex);
+				// If we're giving up, show the exception
+				if (!retry)
+					hgl.pException(ex);
 			}
-		} while (false); // yes, this is just a glorified wrapper for a goto
+		} while (retry);
 	}
 
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp, DB db, HtmlGL hgl) throws Exception {
