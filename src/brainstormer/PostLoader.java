@@ -2,6 +2,7 @@ package brainstormer;
 
 import java.sql.*;
 import java.util.*;
+import java.util.regex.*;
 
 /**
  * <p>Project: Brainstormer</p>
@@ -34,12 +35,8 @@ public class PostLoader {
 		s_SelectPostKeywords= db.prep("SELECT "+keywordFields+"FROM "+keywordTable+"WHERE k.PostID = ?");
 		s_SelectPostLinks= db.prep("SELECT "+linkFields+"FROM "+linkTable+"WHERE l.Node = ? or l.Peer = ?");
 		s_SearchForPosts= db.prep(
-			"SELECT "+postFields+", count(k.Keyword) as Matches FROM "+postTable+"LEFT JOIN Keyword k on p.ID = k.PostID "
-			+"WHERE k.Keyword LIKE ? GROUP BY p.ID "
-			+"UNION ALL SELECT "+postFields+", 1 as Matches FROM "+postTable
-			+"WHERE Title LIKE ? "
-			+"UNION ALL SELECT "+postFields+", 1 as Matches FROM "+postTable
-			+"WHERE Text LIKE ? ");
+			"SELECT "+postFields+", count(k.PostID) as KwMatches FROM "+postTable+"LEFT JOIN Keyword k on p.ID = k.PostID AND k.Keyword LIKE ? "
+			+"WHERE Title LIKE ? OR Text LIKE ? GROUP BY p.ID");
 		s_SelectAllPosts= db.prep("SELECT "+postFields+"FROM "+postTable+"LIMIT ? OFFSET ?");
 		s_SelectLonePosts= db.prep(
 			"SELECT "+postFields+", l_in.Node, l_out.Node FROM "+postTable
@@ -85,26 +82,52 @@ public class PostLoader {
 			else
 				return -1;
 		}
+
+		static int calcScore(Post p, int kwMatches, Pattern wordPattern) {
+			int titleMatch= countInstances(p.title, wordPattern);
+			int bodyMatch= countInstances(p.content.getText(), wordPattern);
+			return kwMatches*3+titleMatch*2+bodyMatch;
+		}
+
+		static int countInstances(String text, Pattern pattern) {
+			int result= 0;
+			Matcher m= pattern.matcher(text);
+			for (int pos= 0; m.find(pos); pos=m.end())
+				result++;
+			return result;
+		}
+	}
+
+	static Pattern wordSanitizer= Pattern.compile("([^\\w])");
+	static String toSQL(String word) {
+		return wordSanitizer.matcher(word).replaceAll("?");
+	}
+	static String toRegexStr(String word) {
+		return wordSanitizer.matcher(word).replaceAll("\\\\1");
 	}
 
 	public Collection<ScoredPost> search(String phrase) throws SQLException {
 		HashMap<Integer,ScoredPost> postScores= new HashMap<Integer,ScoredPost>();
 		for (String word: phrase.split("[ \u0001\t\n\r]+")) {
-			word= '%'+word+'%';
-			s_SearchForPosts.setString(1, word);
-			s_SearchForPosts.setString(2, word);
-			s_SearchForPosts.setString(3, word);
+			String param= '%'+toSQL(word)+'%';
+			s_SearchForPosts.setString(1, param);
+			s_SearchForPosts.setString(2, param);
+			s_SearchForPosts.setString(3, param);
 			ResultSet rs= s_SearchForPosts.executeQuery();
-			while (rs.next()) {
-				int id= rs.getInt(1);
-				int score= rs.getInt(rs.findColumn("Matches"));
-				ScoredPost sp= postScores.get(id);
-				if (sp == null) {
-					sp= new ScoredPost(postFromResultSet(rs), score);
-					postScores.put(id, sp);
+			if (!rs.isAfterLast()) {
+				Pattern wordPattern= Pattern.compile(toRegexStr(word), Pattern.CASE_INSENSITIVE);
+				while (rs.next()) {
+					int id= rs.getInt(1);
+					int kwMatches= rs.getInt(rs.findColumn("KwMatches"));
+					ScoredPost sp= postScores.get(id);
+					if (sp == null) {
+						Post p= postFromResultSet(rs);
+						sp= new ScoredPost(p, ScoredPost.calcScore(p, kwMatches, wordPattern));
+						postScores.put(id, sp);
+					}
+					else
+						sp.score+= ScoredPost.calcScore(sp.post, kwMatches, wordPattern);
 				}
-				else
-					sp.score+= score;
 			}
 			rs.close();
 		}
