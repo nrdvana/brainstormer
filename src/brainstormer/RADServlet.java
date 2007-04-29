@@ -63,8 +63,9 @@ public class RADServlet extends HttpServlet {
 		HtmlGL hgl= new HtmlGL(req, resp);
 		DB db= null;
 		// In case of DB communication problems, we might need multiple attempts
-		boolean retry= false;
+		boolean retry;
 		do {
+			retry= false;
 			try {
 				db= DB.getInstance(getServletContext());
 				db.activeUser= db.auth.authenticateCurrentUser(req);
