@@ -24,9 +24,9 @@ public class PostLoader {
 		linkFields= "l.Node, l.Peer, l.Relation ",
 		linkTable= "Link l ";
 
-	PreparedStatement
+	final PreparedStatement
 		s_SelectPostFields, s_SelectPostKeywords, s_SelectPostLinks,
-		s_SearchForPosts, s_SelectAllPosts, s_SelectLonePosts,
+		s_SearchForPosts, s_SelectAllPosts, s_SelectLonePosts, s_SelectRootPosts,
 		s_InsertPost, s_UpdatePost, s_WipeKeywords, s_InsertKeyword, s_WipeLinks, s_InsertLink;
 
 	public PostLoader(DB db) throws SQLException {
@@ -43,6 +43,10 @@ public class PostLoader {
 			+"LEFT JOIN Link l_in ON l_in.Peer = p.ID "
 			+"LEFT JOIN Link l_out ON l_out.Node = p.ID "
 			+"WHERE l_in.Node IS NULL AND l_out.Node IS NULL");
+		s_SelectRootPosts= db.prep(
+			"SELECT "+postFields+", l_out.Node FROM "+postTable
+			+"LEFT JOIN Link l_out ON l_out.Node = p.ID AND l_out.Relation = 'reply' "
+			+"WHERE l_out.Node IS NULL");
 		s_InsertPost= db.prep("INSERT INTO Post (Title, ContentType, Text, AuthorID, PostTime, EditTime) VALUES (?, ?, ?, ?, NOW(), NOW())");
 		s_UpdatePost= db.prep("UPDATE Post SET Title = ?, ContentType = ?, Text = ?, EditTime = NOW() WHERE ID = ?");
 		s_WipeKeywords= db.prep("DELETE FROM Keyword WHERE PostID = ?");
@@ -150,6 +154,14 @@ public class PostLoader {
 	public Collection<Post> searchOrphans() throws SQLException {
 		LinkedList<Post> result= new LinkedList<Post>();
 		ResultSet rs= s_SelectLonePosts.executeQuery();
+		while (rs.next())
+			result.add(postFromResultSet(rs));
+		return result;
+	}
+
+	public Collection<Post> searchRootPosts() throws SQLException {
+		LinkedList<Post> result= new LinkedList<Post>();
+		ResultSet rs= s_SelectRootPosts.executeQuery();
 		while (rs.next())
 			result.add(postFromResultSet(rs));
 		return result;

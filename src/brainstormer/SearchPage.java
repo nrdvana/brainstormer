@@ -21,6 +21,7 @@ public class SearchPage extends RADServlet {
 		None(null, false),
 		Standard("Search", false),
 		All("All Posts", true),
+		RootPosts("Root Posts", true),
 		Orphans("Orphaned Posts", true);
 
 		public final String displayName;
@@ -56,6 +57,9 @@ public class SearchPage extends RADServlet {
 				break;
 			case Orphans:
 				results= db.postLoader.searchOrphans();
+				break;
+			case RootPosts:
+				results= db.postLoader.searchRootPosts();
 				break;
 			default:
 				throw new RuntimeException("Unhandled input");
