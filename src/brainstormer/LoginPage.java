@@ -38,7 +38,7 @@ public class LoginPage extends RADServlet {
 			if (userId == -1)
 				userId= Util.parseOrDefault("id", -1); // or from request
 			password= req.getParameter("pass");
-			temporary= req.getParameter("stayLoggenIn") == null;
+			temporary= req.getParameter("stayLoggedIn") == null;
 		}
 	}
 
@@ -63,7 +63,7 @@ public class LoginPage extends RADServlet {
 		PageFields fields= new PageFields(req);
 		if (db.auth.tryLogin(fields.userName, fields.password)) {
 			Cookie c= db.auth.getLoginCookie();
-			c.setMaxAge(-1);
+			c.setMaxAge(fields.temporary? -1 : 0xFFFFFFF);
 			c.setPath(req.getContextPath());
 			response.addCookie(c);
 			response.sendRedirect(response.encodeRedirectURL("login?checkcookie=y&expectedId="+db.activeUser.id+"&goto="+hgl.urlEsc(fields.destination)));
