@@ -153,12 +153,11 @@ public class SetupPage extends HttpServlet {
 		if (startVersion < 1 && forumAdminName.length() != 0) { // need to add admin user, if given
 			db.init(); // is now safe to prepare queries, etc
 			try {
-				User u= db.userLoader.newUser(forumAdminName, forumAdminPass);
 				User root= db.userLoader.loadById(0);
 				if (root == null)
 					throw new RuntimeException("Root user does not exist");
-				u.groups= new User[] {root};
-				db.userLoader.storeUser(u);
+				db.activeUser= root; // to satisfy permission checks
+				db.userLoader.newUser(forumAdminName, forumAdminPass, new User[] {root});
 			}
 			catch (Exception ex) {
 				throw new RuntimeException("Error while adding the default admin user "+forumAdminName+":", ex);

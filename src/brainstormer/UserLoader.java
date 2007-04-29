@@ -103,22 +103,22 @@ public class UserLoader {
 				loadUserGroups(g);
 	}
 
-	User newUser(String uname, String pass) throws SQLException {
+	User newUser(String uname, String pass, User[] groups) throws SQLException {
 		User u= new User(uname);
 		u.isGroup= false;
 		u.passHash= Auth.hashPassword(uname, pass);
 		u.avatar= null;
-		storeUser(u);
-		return u;
+		u.groups= groups;
+		return loadById(createUser(u));
 	}
 
-	User newGroup(String uname) throws SQLException {
+	User newGroup(String uname, User[] groups) throws SQLException {
 		User u= new User(uname);
 		u.isGroup= true;
 		u.passHash= "-";
 		u.avatar= null;
-		storeUser(u);
-		return u;
+		u.groups= groups;
+		return loadById(createUser(u));
 	}
 
 	void storeUser(User u) throws SQLException {
@@ -157,6 +157,8 @@ public class UserLoader {
 			throw new RuntimeException("Did not receive new user ID after insert");
 		int result= rs.getInt(1);
 		rs.close();
+		if (u.groups.length > 0)
+			storeUserGroups(u);
 		return result;
 	}
 
