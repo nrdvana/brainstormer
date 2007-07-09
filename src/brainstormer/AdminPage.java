@@ -27,9 +27,9 @@ public class AdminPage extends RADServlet {
 			renderDenied(hgl, db);
 		else {
 			if (req.getParameter("newUser") != null)
-				addUser(req.getParameter("newUserName"), req.getParameter("newUserPass"), false, hgl);
+				db.userLoader.newUser(req.getParameter("newUserName"), req.getParameter("newUserPass"), new User[0]);
 			else if (req.getParameter("newGroup") != null)
-				addUser(req.getParameter("newGroupName"), "", true, hgl);
+				db.userLoader.newGroup(req.getParameter("newGroupName"), new User[0]);
 			response.sendRedirect(response.encodeRedirectURL("admin"));
 		}
 	}
@@ -53,15 +53,5 @@ public class AdminPage extends RADServlet {
 		hgl.endErrorMsg();
 		hgl.p("</div>\n");
 		hgl.endPage();
-	}
-
-	void addUser(String name, String password, boolean isGroup, HtmlGL hgl) throws Exception {
-		DB db= DB.getInstance(getServletContext());
-		if (db.userLoader.loadByName(name) != null)
-			throw new UserException("Error: User name "+name+" already exists.");
-		if (isGroup)
-			db.userLoader.newGroup(name);
-		else
-			db.userLoader.newUser(name, password);
 	}
 }
