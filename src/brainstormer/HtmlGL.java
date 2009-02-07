@@ -35,6 +35,7 @@ public class HtmlGL {
 	private void initStreamIfNeeded() {
 		if (out == null) {
 			response.setContentType("text/html; charset=UTF-8");
+			response.setHeader("Cache-Control", "no-cache");
 			try {
 				out= response.getWriter();
 			}
